@@ -3,6 +3,7 @@
 from django.db import models
 
 from userprofile.models import User
+import datetime
 
 
 class Category(models.Model):
@@ -36,8 +37,9 @@ class Catalog(models.Model):
     def __str__(self):
         return self.title
 
-def upload_file(user=Catalog.user, category=Catalog.category):
-    return 'media/%s/%s/' % (user, category)
+def upload_file(instance, filename):
+    d = datetime.datetime.now()
+    return '%s/%s/%s/%s' % (d.year, instance.catalog.user_id, instance.catalog.category_id, filename)
 
 class Files(models.Model):
     catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE)
