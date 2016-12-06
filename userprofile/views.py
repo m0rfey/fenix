@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib import auth, messages
+from django.http import Http404
 from django.shortcuts import render, redirect
 from django.template.context_processors import csrf
 from django.core.mail import send_mail
@@ -33,14 +34,13 @@ def signup(request):
                 auth.login(request, login_new_user)
                 messages.success(request, "Регистрация произошла успешно. Если письмо о регистрации не пришло проверте папку СПАМ в почтовом ящике.", extra_tags="alert-success" )
             else:
-                messages.error(request, "Этот email уже используется", extra_tags="alert-error" )
+                messages.error(request, "Этот email уже кемто используется", extra_tags="alert-error" )
 
-    return render(request, 'userprofile/signup.html', args)
+    return render(request, '../templates/userprofile/signup.html', args)
 
 def signin(request):
     args = {}
     args['title'] = 'Sign In'
-
     args.update(csrf(request))
     args['forms'] = SignInForm()
     if request.POST and ('pause', not request.session):
@@ -51,20 +51,29 @@ def signin(request):
             auth.login(request, user)
             request.session.set_expiry(15000)
             request.session['pause'] = True
-            messages.success(request, "Поздравлаем %s, Вы успешно залогинились " % auth.get_user(request).username, extra_tags="alert-success" )
-            return render(request, 'userprofile/signin.html', args)
+            messages.success(request, "Поздравлаем %s, Вы успешно вошли " % auth.get_user(request).username, extra_tags="alert-success" )
+            args['username'] = auth.get_user(request).username
+            return redirect('/')
         else:
             messages.error(request, "Внимание! Не коректно введены данные", extra_tags="alert-danger" )
-            return render(request, 'userprofile/signin.html', args)
+            return render(request, '../templates/userprofile/signin.html', args)
     else:
-        return render(request, 'userprofile/signin.html', args)
+        return render(request, '../templates/userprofile/signin.html', args)
 
 def signout(request):
     auth.logout(request)
     return_path = request.META.get('HTTP_REFERER', '/')
 
-    return redirect('/')
+    return redirect(return_path)
 
 # End Authentication
 
-
+def profile(request, user_id):
+    args={}
+    args['title']= User.objects.get(id = user_id)
+    try:
+        args['user'] = User.objects.get(id=auth.get_user(request).id)
+    except User.DoesNotExist:
+        raise Http404
+    args['username'] = auth.get_user(request)
+    return render(request, '../templates/userprofile/profile.html', args)

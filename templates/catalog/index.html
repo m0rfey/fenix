@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row">
+    {% for file in catalog %}
+        <div class="col-md-3">
+        <a href="{% url 'details' file.pk %}">
+            {% if file.cover %}
+                {% load static %}
+                <div class="content-markdown">
+                    <img src="{% static file.cover.url %}" alt="{{ file.title }}"/>
+                </div>
+            {% endif %}
+                {{ file.title }} ||
+                {{ file.category }}
+            </a>
+        </div>
+    {% endfor %}
+    </div>
+
+
+{% endblock %}
+

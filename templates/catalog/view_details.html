@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load static %}
+    {{ catalog.title }}
+    {{ catalog.date_add }}
+    {{ catalog.cover.url}}
+    {{ catalog.category }}
+    {{ catalog.user }}
+    {{ catalog.description }}
+    {% for f in files %}
+        {{ f }}
+    {% endfor %}
+
+{% endblock %}

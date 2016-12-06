@@ -14,6 +14,7 @@ class CatalogAdmin(admin.ModelAdmin):
 
     fieldsets = [
         (None, {'fields':['title',
+                          'cover',
                           'category',
                           'user',
                           'description']}),

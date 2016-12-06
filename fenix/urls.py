@@ -15,24 +15,47 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from rest_framework.urlpatterns import format_suffix_patterns
+
+from fenix import settings
 from userprofile import api, views
+from catalog.views import index, category, view_details
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    # Home
+    url(r'^$', index, name='home'),
 
-    #SignUp
+    # SignUp
     url(r'^signup/$', views.signup, name='signup'),
 
-    #SignIn
+    # SignIn
     url(r'^signin/$', views.signin, name='signin'),
 
-    #SignOut
+    # SignOut
     url(r'^signout/$', views.signout, name='signout'),
+
+    # Profile
+    url(r'^user-(?P<user_id>\d+)/$', views.profile, name='user_profile'),
+
+    # Details
+    url(r'^view/(?P<file_id>\d+)/$', view_details, name='details'),
+
+    # Category
+    url(r'^(?P<category_slug>[\w-]+)/', category, name='category'),
+
+
+
 
     # API
     url(r'^api-v1.0/users/$', api.UserList.as_view()),
     url(r'^api-v1.0/user/(?P<pk>[0-9]+)/$', api.UserDetail.as_view())
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

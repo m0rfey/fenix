@@ -2,7 +2,9 @@
 
 from django.db import models
 
+from fenix.settings import MEDIA_ROOT
 from userprofile.models import User
+from sorl.thumbnail import ImageField, get_thumbnail, fields
 import datetime
 
 
@@ -18,8 +20,11 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+def upload_cover(instance, filename):
+    return '%s/%s/%s/cover/%s' % (datetime.datetime.now().year, instance.user_id, instance.category.slug, filename)
+
 class Catalog(models.Model):
-    cover = models.ImageField(verbose_name='Постер', upload_to='media/cover')
+    cover = ImageField(verbose_name='Постер', upload_to=upload_cover)
     date_add = models.DateTimeField(verbose_name='Дата')
     title = models.CharField(max_length=50, verbose_name='Заголовок')
     category = models.ForeignKey(Category, verbose_name='Категория')
@@ -39,7 +44,7 @@ class Catalog(models.Model):
 
 def upload_file(instance, filename):
     d = datetime.datetime.now()
-    return '%s/%s/%s/%s' % (d.year, instance.catalog.user_id, instance.catalog.category_id, filename)
+    return '%s/%s/%s/%s' % (d.year, instance.catalog.user_id, instance.catalog.category.slug, filename)
 
 class Files(models.Model):
     catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE)
@@ -50,4 +55,6 @@ class Files(models.Model):
         db_table = 'files'
         verbose_name = 'Файл'
         verbose_name_plural = 'Файлы'
+    def __str__(self):
+        return str(self.files_s)
 
