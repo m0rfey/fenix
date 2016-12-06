@@ -1,0 +1,5 @@
+.idea/
+fenix/secret.py
+media/
+avatars/
+db.sqlite3
