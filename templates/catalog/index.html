@@ -2,13 +2,13 @@
 {% block content %}
     <div class="row">
     {% for file in catalog %}
-        <div class="col-md-3">
+        <div class="col-md-3" style="height: 200px; border: 1px solid black">
         <a href="{% url 'details' file.pk %}">
             {% if file.cover %}
-                {% load static %}
-                <div class="content-markdown">
-                    <img src="{% static file.cover.url %}" alt="{{ file.title }}"/>
-                </div>
+                {% load static thumbnail%}
+                 {% thumbnail file.cover "150x200" as im %}
+                     <img src="{{ im.url }}" width="{{ im.width_field }}" height="{{ im.height_field }}" alt="{{ im.title }}">
+                {% endthumbnail %}
             {% endif %}
                 {{ file.title }} ||
                 {{ file.category }}

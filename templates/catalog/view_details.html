@@ -1,12 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-    {% load static %}
-    {{ catalog.title }}
-    {{ catalog.date_add }}
-    {{ catalog.cover.url}}
-    {{ catalog.category }}
-    {{ catalog.user }}
-    {{ catalog.description }}
+    {% for foo in catalog %}
+       <p>{{ foo.title }}</p>
+       <p>{{ foo.cover }}</p>
+        <p>{{ foo.date_add }}</p>
+        <p>{{ foo.category }}</p>
+        <p>{{ foo.user }}</p>
+        <p>{{ foo.description }}</p>
+    {% endfor %}
+
+<h5>Files</h5>
     {% for f in files %}
         {{ f }}
     {% endfor %}
