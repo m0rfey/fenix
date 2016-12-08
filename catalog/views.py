@@ -16,7 +16,7 @@ def category(request, category_slug):
     args['username'] = auth.get_user(request).username
     try:
         args['title'] = Category.objects.get(slug = category_slug)
-        args['category'] = Catalog.objects.filter(category=Category.objects.get(slug=category_slug))
+        args['category'] = Catalog.objects.filter(category=Category.objects.get(slug=category_slug), is_open=True)
     except Category.DoesNotExist:
         raise Http404
     return render(request, '../templates/catalog/category.html', args)
@@ -26,7 +26,7 @@ def view_details(request, file_id):
     try:
         args['username'] = auth.get_user(request).username
         args['title']=Catalog.objects.filter(id=file_id).values('title')
-        args['catalog']= Catalog.objects.get(id=file_id)
+        args['catalog']= Catalog.objects.filter(id=file_id, is_open=True)
         args['files'] = Files.objects.filter(catalog=file_id)
     except Catalog.DoesNotExist:
         raise Http404

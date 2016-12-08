@@ -25,6 +25,7 @@ def upload_cover(instance, filename):
 
 class Catalog(models.Model):
     cover = ImageField(verbose_name='Постер', upload_to=upload_cover)
+    thumb_cover = ImageField(upload_to='media/')
     date_add = models.DateTimeField(verbose_name='Дата')
     title = models.CharField(max_length=50, verbose_name='Заголовок')
     category = models.ForeignKey(Category, verbose_name='Категория')
@@ -34,10 +35,17 @@ class Catalog(models.Model):
     is_slug = models.BooleanField(verbose_name='По ссылке', help_text='Файл будет доступет только по ссылке')
     is_for_me = models.BooleanField(verbose_name='Только для меня', help_text='Файл будет доступен только Вам')
 
+    def save(self, *args, **kwargs):
+        if self.cover:
+            self.thumb_cover = get_thumbnail(self.cover, '150x200', quality=95).url
+        super(Catalog, self).save(*args, **kwargs)
+
     class Meta:
         db_table = 'catalog'
         verbose_name = 'Файл'
         verbose_name_plural = 'Файлы'
+
+
 
     def __str__(self):
         return self.title

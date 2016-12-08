@@ -33,6 +33,7 @@ def signup(request):
                                                    password=forms.cleaned_data['password2'])
                 auth.login(request, login_new_user)
                 messages.success(request, "Регистрация произошла успешно. Если письмо о регистрации не пришло проверте папку СПАМ в почтовом ящике.", extra_tags="alert-success" )
+                return render(request, '../templates/userprofile/profile.html', args)
             else:
                 messages.error(request, "Этот email уже кемто используется", extra_tags="alert-error" )
 
