@@ -10,7 +10,8 @@ import datetime
 
 class Category(models.Model):
     name= models.CharField(max_length=20)
-    slug = models.SlugField()
+    slug = models.SlugField(verbose_name='Ссылка')
+    is_publish = models.BooleanField(verbose_name='Опубликовать', default=False)
 
     class Meta:
         db_table = 'category'
@@ -26,7 +27,7 @@ def upload_cover(instance, filename):
 class Catalog(models.Model):
     cover = ImageField(verbose_name='Постер', upload_to=upload_cover)
     thumb_cover = ImageField(upload_to='media/')
-    date_add = models.DateTimeField(verbose_name='Дата')
+    date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
     title = models.CharField(max_length=50, verbose_name='Заголовок')
     category = models.ForeignKey(Category, verbose_name='Категория')
     user = models.ForeignKey(User, verbose_name='Автор')

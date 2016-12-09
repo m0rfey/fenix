@@ -18,7 +18,7 @@ class CatalogAdmin(admin.ModelAdmin):
                           'category',
                           'user',
                           'description']}),
-        ('Дата добавления', {'fields': ['date_add'], 'classes': ['collapse']}),
+        #('Дата добавления', {'fields': ['date_add'], 'classes': ['collapse']}),
         ('Доступ к файлу', {'fields':['is_open',
                                       'is_slug',
                                       'is_for_me']})

@@ -21,7 +21,7 @@
             {% endif %}
         <div class="title" id="title">{{ file.title }}</div>
         </a>
-            <div class="category" id="category">{{ verbose_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
+            <div class="category" id="category">{{ category_verbos_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
 
         </div>
     {% endfor %}

@@ -7,7 +7,7 @@ from .models import Category, Catalog, Files
 def index(request):
     args={}
     args['title'] = 'Home'
-    args['catalog'] = Catalog.objects.filter(is_open=True)
+    args['catalog'] = Catalog.objects.filter(is_open=True, category__is_publish=True)
     args['verbose_name'] = Category._meta.verbose_name
     args['username'] = auth.get_user(request).username
     return render(request, '../templates/catalog/index.html', args)
