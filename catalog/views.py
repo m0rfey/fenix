@@ -8,6 +8,7 @@ def index(request):
     args={}
     args['title'] = 'Home'
     args['catalog'] = Catalog.objects.filter(is_open=True)
+    args['verbose_name'] = Category._meta.verbose_name
     args['username'] = auth.get_user(request).username
     return render(request, '../templates/catalog/index.html', args)
 

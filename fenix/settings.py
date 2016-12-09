@@ -71,6 +71,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'django.template.context_processors.media',
                 'catalog.context_processors.category'
             ],
         },
@@ -130,7 +132,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'catalog/static/media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
@@ -146,3 +148,11 @@ EMAIL_USE_TLS = True
 
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+#THUMBNAIL_BACKEND = 'sorl.thumbnail.base.ThumbnailBackend'
+
+#THUMBNAIL_KVSTORE ='sorl.thumbnail.kvstores.cached_db_kvstore.KVStore'
+
+#THUMBNAIL_KEY_DBCOLUMN = 'key'
+
+#THUMBNAIL_ENGINE = 'sorl.thumbnail.engines.pil_engine.Engine'

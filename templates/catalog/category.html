@@ -3,17 +3,25 @@
 {% block content %}
     <div class="row">
     {% for file in category %}
-        <div class="col-md-3">
+        <div class="col-md-3 box">
         <a href="{% url 'details' file.pk %}">
             {% if file.cover %}
-                {% load static %}
-                <div class="content-markdown">
-                    <img src="{% static file.cover.url %}" alt="{{ file.title }}"/>
+                {% load static thumbnail%}
+                <div class="image" id="image">
+                     {% if file.cover|is_portrait %}
+                    {% thumbnail file.cover "100x150" crop="center" as im%}
+                        <img src="{{ im.url }}">
+                    {% endthumbnail %}
+                {% else %}
+                     {% thumbnail file.cover "250x150" crop="center" as im%}
+                        <img src="{{ im.url }}">
+                    {% endthumbnail %}
+                {% endif %}
                 </div>
             {% endif %}
-                {{ file.title }} ||
-                {{ file.category }}
-            </a>
+             <div class="title" id="title">{{ file.title }}</div>
+        </a>
+            <div class="category" id="category">{{ verbose_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
         </div>
     {% endfor %}
     </div>

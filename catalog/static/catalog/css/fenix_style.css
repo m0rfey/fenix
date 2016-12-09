@@ -1,0 +1,22 @@
+body{background: rgba(239, 238, 238, 0.25);}
+
+.box {
+    height: 250px;
+    border: 1px dotted rgba(51,153,243,0.39);
+    margin-left: 1px;
+    margin-bottom: 1px;
+    padding-top: 5px;
+}
+.image{
+    text-align: center;
+}
+.image img {
+    border: 1px solid rgba(51,153,243,0.39);
+    padding: 2px;
+}
+.title{
+    margin-top: 5px;
+}
+.category{
+
+}
