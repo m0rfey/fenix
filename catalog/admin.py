@@ -1,8 +1,10 @@
 from django.contrib import admin
-from .models import Category, Catalog, Files
+from .models import Category, Catalog, Files, ExpresFiles
+
 
 class FilesInLine(admin.StackedInline):
     model = Files
+    fields = ['files_s', 'slug']
     extra = 2
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -25,7 +27,14 @@ class CatalogAdmin(admin.ModelAdmin):
     ]
     inlines = [FilesInLine]
 
+class ExpresFilesAdmin(admin.ModelAdmin):
+    fields = ['email', 'slug']
+    list_display = ['email', 'date_add', 'slug']
+    list_filter = ['email', 'date_add']
+
+    inlines = [FilesInLine]
+
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Catalog, CatalogAdmin)
-
+admin.site.register(ExpresFiles, ExpresFilesAdmin)
 

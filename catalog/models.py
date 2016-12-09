@@ -10,7 +10,7 @@ import datetime
 
 class Category(models.Model):
     name= models.CharField(max_length=20)
-    slug = models.SlugField(verbose_name='Ссылка')
+    slug = models.SlugField(verbose_name='Алиас')
     is_publish = models.BooleanField(verbose_name='Опубликовать', default=False)
 
     class Meta:
@@ -32,6 +32,7 @@ class Catalog(models.Model):
     category = models.ForeignKey(Category, verbose_name='Категория')
     user = models.ForeignKey(User, verbose_name='Автор')
     description = models.TextField(verbose_name='Описание', max_length=300)
+    slug = models.SlugField(verbose_name='Алиас')
     is_open = models.BooleanField(verbose_name='Для всех', help_text='Дать доступ к файлу для всех пользователей')
     is_slug = models.BooleanField(verbose_name='По ссылке', help_text='Файл будет доступет только по ссылке')
     is_for_me = models.BooleanField(verbose_name='Только для меня', help_text='Файл будет доступен только Вам')
@@ -46,19 +47,44 @@ class Catalog(models.Model):
         verbose_name = 'Файл'
         verbose_name_plural = 'Файлы'
 
-
-
     def __str__(self):
         return self.title
 
+class ExpresFiles(models.Model):
+    email = models.EmailField(verbose_name='Email')
+    #category = models.ForeignKey(Category, default=Category.objects.get(id=1))
+    slug = models.SlugField(verbose_name='Алиас')
+    date_add = models.DateTimeField(auto_now_add=True, verbose_name='Время добавления')
+
+    class Meta:
+        db_table = 'expresfiles'
+        verbose_name = 'Временные файлы'
+        verbose_name_plural = 'Временные файлы'
+
+    def __str__(self):
+        return self.email
+
+
 def upload_file(instance, filename):
     d = datetime.datetime.now()
-    return '%s/%s/%s/%s' % (d.year, instance.catalog.user_id, instance.catalog.category.slug, filename)
+    if instance.catalog:
+        m = instance.catalog.user_id
+        c = instance.catalog.category.slug
+    elif instance.expresfile:
+        m = instance.expresfile.email
+        c = instance.expresfile.slug
+    else:
+        m = 0
+        c = 0
+
+
+    return '%s/%s/%s/%s' % (d.year, m, c, filename)
 
 class Files(models.Model):
-    catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE)
+    catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE,blank=True, null=True)
+    expresfile = models.ForeignKey(ExpresFiles, verbose_name='Временные файлы', blank=True, null=True)
     files_s = models.FileField(verbose_name='Файл', upload_to=upload_file)
-    slug = models.SlugField()
+    slug = models.SlugField(verbose_name='Алиас')
 
     class Meta:
         db_table = 'files'
@@ -66,4 +92,3 @@ class Files(models.Model):
         verbose_name_plural = 'Файлы'
     def __str__(self):
         return str(self.files_s)
-
