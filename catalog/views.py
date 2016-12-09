@@ -2,13 +2,21 @@
 from django.contrib import auth
 from django.http import Http404
 from django.shortcuts import render
-from .models import Category, Catalog, Files
+
+from catalog.forms import ExpresFilesForms, FilesForms
+from .models import Category, Catalog, Files, ExpresFiles
+
 
 def index(request):
     args={}
     args['title'] = 'Home'
     args['catalog'] = Catalog.objects.filter(is_open=True, category__is_publish=True)
     args['verbose_name'] = Category._meta.verbose_name
+    args['expres_form'] = ExpresFilesForms()
+    x = FilesForms()
+    x.fields['catalog'].queryset = Catalog.objects.all()
+    x.fields['expresfile'].queryset = ExpresFiles.objects.all()
+    args['files_form'] = x
     args['username'] = auth.get_user(request).username
     return render(request, '../templates/catalog/index.html', args)
 
