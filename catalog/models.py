@@ -52,7 +52,7 @@ class Catalog(models.Model):
 
 class ExpresFiles(models.Model):
     email = models.EmailField(verbose_name='Email')
-    #category = models.ForeignKey(Category, default=Category.objects.get(id=1))
+    description = models.TextField(verbose_name='Описание',max_length=300)
     slug = models.SlugField(verbose_name='Алиас')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Время добавления')
 

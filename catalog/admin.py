@@ -28,7 +28,7 @@ class CatalogAdmin(admin.ModelAdmin):
     inlines = [FilesInLine]
 
 class ExpresFilesAdmin(admin.ModelAdmin):
-    fields = ['email', 'slug']
+    fields = ['email', 'slug', 'description']
     list_display = ['email', 'date_add', 'slug']
     list_filter = ['email', 'date_add']
 
