@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib import admin
-from .models import Category, Catalog, Files, ExpresFiles
+from .models import Category, Catalog, FilesCatalog, ExpresFiles, FilesExpres
 
 
-class FilesInLine(admin.StackedInline):
-    model = Files
-    fields = ['files_s', 'slug']
+class FilesCatalogInLine(admin.StackedInline):
+    model = FilesCatalog
+    fields = ['files_s']
+    extra = 2
+
+class FilesExpresInLine(admin.StackedInline):
+    model = FilesExpres
+    fields = ['files_s']
     extra = 2
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -27,14 +32,14 @@ class CatalogAdmin(admin.ModelAdmin):
                                       'is_slug',
                                       'is_for_me']})
     ]
-    inlines = [FilesInLine]
+    inlines = [FilesCatalogInLine]
 
 class ExpresFilesAdmin(admin.ModelAdmin):
     fields = ['email', 'slug', 'description']
     list_display = ['email', 'date_add', 'slug']
     list_filter = ['email', 'date_add']
 
-    inlines = [FilesInLine]
+    inlines = [FilesExpresInLine]
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Catalog, CatalogAdmin)

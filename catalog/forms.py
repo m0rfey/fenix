@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
-from .models import Catalog, ExpresFiles, Files
+from django.forms import inlineformset_factory
+
+from .models import Category, Catalog, ExpresFiles, FilesCatalog, FilesExpres
 
 class CatalogForms(forms.ModelForm):
     cover = forms.ImageField()
     title = forms.CharField()
     category = forms.ModelChoiceField(
-        queryset=None,
+        queryset=Category.objects.none(),
         widget=forms.Select()
     )
     description = forms.Textarea()
@@ -25,25 +27,26 @@ class CatalogForms(forms.ModelForm):
                   'is_slug',
                   'is_for_me']
 
+class FilesExpresForms(forms.ModelForm):
+    files_s = forms.FileField(
+        required=False,
+        widget= forms.FileInput())
+    class Meta:
+        model=FilesExpres
+        fields=['files_s']
+
 class ExpresFilesForms(forms.ModelForm):
-    email = forms.EmailField()
-    description = forms.Textarea()
+    email = forms.EmailField(
+        label='Email',
+        widget=forms.TextInput({'class': 'form-control','placeholder': 'Email'})
+    )
+    description = forms.CharField(
+        label='Описание',
+        widget=forms.Textarea({'class': 'form-control','placeholder': 'Описание'}))
 
     class Meta:
-        model =ExpresFiles
+        model=ExpresFiles
         fields=['email', 'description']
 
-class FilesForms(forms.ModelForm):
-    catalog = forms.ModelChoiceField(
-        queryset=None,
-        widget=forms.Select()
-    )
-    expresfile = forms.ModelChoiceField(
-        queryset=None,
-        widget=forms.Select()
-    )
-    files_s = forms.FileField()
-
-    class Meta:
-        model=Files
-        fields=['catalog', 'expresfile', 'files_s']
+class TestForm(ExpresFilesForms, FilesExpresForms):
+    inlineformset_factory = ['email', 'description', 'files_s']

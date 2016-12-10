@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from django.dispatch import receiver
 
 from fenix.settings import MEDIA_ROOT
 from userprofile.models import User
 from sorl.thumbnail import ImageField, get_thumbnail, fields
 import datetime
+from django.contrib.auth.models import UserManager
+
+
+def randomStr():
+    return (UserManager().make_random_password(length=25))
 
 
 class Category(models.Model):
@@ -53,7 +59,7 @@ class Catalog(models.Model):
 class ExpresFiles(models.Model):
     email = models.EmailField(verbose_name='Email')
     description = models.TextField(verbose_name='Описание',max_length=300)
-    slug = models.SlugField(verbose_name='Алиас')
+    slug = models.SlugField(verbose_name='Алиас', blank=True, null=True, default=randomStr, max_length=25)
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Время добавления')
 
     class Meta:
@@ -67,28 +73,39 @@ class ExpresFiles(models.Model):
 
 def upload_file(instance, filename):
     d = datetime.datetime.now()
-    if instance.catalog:
-        m = instance.catalog.user_id
-        c = instance.catalog.category.slug
-    elif instance.expresfile:
+    if instance.expresfile:
         m = instance.expresfile.email
         c = instance.expresfile.slug
     else:
         m = 0
         c = 0
-
-
     return '%s/%s/%s/%s' % (d.year, m, c, filename)
 
-class Files(models.Model):
-    catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE,blank=True, null=True)
-    expresfile = models.ForeignKey(ExpresFiles, verbose_name='Временные файлы', blank=True, null=True)
+class FilesCatalog(models.Model):
+    catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE, blank=True, null=True)
     files_s = models.FileField(verbose_name='Файл', upload_to=upload_file)
-    slug = models.SlugField(verbose_name='Алиас')
 
     class Meta:
-        db_table = 'files'
+        db_table = 'files_catalog'
         verbose_name = 'Файл'
         verbose_name_plural = 'Файлы'
     def __str__(self):
         return str(self.files_s)
+
+class FilesExpres(models.Model):
+    expresfile = models.ForeignKey(ExpresFiles, verbose_name='Временные файлы', on_delete=models.CASCADE, blank=True, null=True)
+    files_s = models.FileField(verbose_name='Файл', upload_to=upload_file)
+
+    class Meta:
+        db_table = 'files_expres'
+        verbose_name = 'Файл'
+        verbose_name_plural = 'Файлы'
+
+    def __str__(self):
+        return str(self.files_s)
+
+# @receiver(ExpresFiles, sender=FilesExpres )
+# def FileExpresDelete(sender, **kwargs):
+#     file = kwargs['instance']
+#     storage, path = file.file_s.storage, file.file_s.path
+#     storage.delete(path)

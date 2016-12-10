@@ -20,3 +20,64 @@ body{background: rgba(239, 238, 238, 0.25);}
 .category{
 
 }
+
+#wrapper {
+  margin: 0 auto;
+  position: relative;
+  max-width: 640px;
+}
+main{
+    display: block;
+}
+.main-wrapper {
+  float: left;
+  width: 100%;
+}
+.main-wrapper h2 {
+  color: #242628;
+  display: block;
+  font-family: 'ChunkFiveRegular', Arial, sans-serif;
+  font-size: 3em;
+  font-weight: bold;
+  line-height: 2em;
+  margin: 6% 0 1%;
+  text-decoration: none;
+  text-transform: capitalize;
+  text-shadow: 1px 1px #555;
+  -moz-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  -o-transition: all 1s ease;
+  -webkit-transition: all 1s ease;
+  text-align: center;
+  max-width: 100%;
+  width: 100%;
+}
+.rlAccordion > h3 {
+  background-color: #007fff;
+  background-image: -moz-linear-gradient(center bottom, #005d7c 0%, #0088b5 100%);
+  background-image: -o-linear-gradient(center bottom, #005d7c 0%, #0088b5 100%);
+  background-image: -webkit-linear-gradient(left bottom, left top, color-stop(0, #005d7c), color-stop(1, #0088b5));
+  background-image: -ms-linear-gradient(top, #005d7c 0%, #0088b5 100%);
+  background-image: linear-gradient(top, #005d7c 0%, #0088b5 100%);
+  border: 1px solid #003eff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.4em;
+  font-weight: normal;
+  margin: 0 auto;
+  padding: 3%;
+  text-decoration: none;
+  text-shadow: 1px 1px 0 #004E68;
+}
+
+.rlAccordion > h3 > span {
+  float: right;
+  font-family: arial, serif, sans-serif;
+}
+
+.rlAccordion > h3 + div {
+  display: none;
+  padding: 2% 5%;
+}

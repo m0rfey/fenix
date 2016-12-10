@@ -6,19 +6,20 @@
     <title>Fenix-{{ title }}</title>
     <link rel="stylesheet" href="{% static 'catalog/css/bootstrap_spacelab.css' %}">
     <link rel="stylesheet" href="{% static 'catalog/css/fenix_style.css' %}">
+{#    <link rel="stylesheet" href="{% static 'catalog/css/styles.css' %}">#}
     <script type="text/javascript" src="{% static "catalog/js/jquery-1.11.3.min.js" %}"></script>
 
+    <script type="text/javascript" src="{% static "catalog/js/html5shiv.js" %}"></script>
+    <script type="text/javascript" src="{% static "catalog/js/rlaccordion.js" %}"></script>
+    <script type="text/javascript" src="{% static "catalog/js/scripts.js" %}"></script>
+
+    {% block head  %}
+    
+    {% endblock %}
 
 
 </head>
 <body>
- <script type="text/javascript">
-      $(document).ready(function () {
-          $(".content-markdown img").each(function (){
-              $(this).addClass("img-responsive")
-          });
-      })
-  </script>
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
