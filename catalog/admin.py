@@ -26,6 +26,7 @@ class CatalogAdmin(admin.ModelAdmin):
                           'cover',
                           'category',
                           'user',
+                          'slug',
                           'description']}),
         #('Дата добавления', {'fields': ['date_add'], 'classes': ['collapse']}),
         ('Доступ к файлу', {'fields':['is_open',

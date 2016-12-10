@@ -29,6 +29,7 @@ class CatalogForms(forms.ModelForm):
 
 class FilesExpresForms(forms.ModelForm):
     files_s = forms.FileField(
+        label='Файл',
         required=False,
         widget= forms.FileInput())
     class Meta:

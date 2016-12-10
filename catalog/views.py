@@ -14,8 +14,7 @@ from fenix import settings
 from .models import Category, Catalog, FilesCatalog, FilesExpres, ExpresFiles
 
 from formtools.wizard.views import SessionWizardView
-import logging
-logr = logging.getLogger(__name__)
+from django.contrib.auth.models import UserManager
 
 def index(request):
     args={}
@@ -34,10 +33,12 @@ def expres_save(request):
         desc= request.POST.get('description', '')
         f = request.FILES.get('files_s', '')
         form = TestForm(request.POST, request.FILES)
+        random_slug = UserManager().make_random_password(length=25)
         if form.is_valid():
             c = ExpresFiles.objects.create(
                 email = ema,
-                description = desc
+                description = desc,
+                slug = random_slug
             )
             f = FilesExpres.objects.create(
                 expresfile = c,
@@ -47,10 +48,10 @@ def expres_save(request):
             print('OK expres files seve')
             print()
             messages.success(request, "Файл добавлен. Ожидайте письмо с ключем доступа для скачивания", extra_tags="alert-success")
-            mess = 'Ваш email-'+ ema + ' бвл использован для загрузки файлов.'+ \
-                   ' Ключь доступа: ' + ExpresFiles.objects.filter(email=ema).values('slug').get()['slug']
+            mess = 'Ваш email:'+' '+ ema + ' был использован для загрузки файлов.'+ \
+                   ' Ключь доступа: ' + c.slug
             from_email = ema
-            send_mail('Спасибо что вібрали нас!', mess, settings.EMAIL_HOST_USER, [from_email], fail_silently=False)
+            send_mail('Спасибо что выбрали нас!', mess, settings.EMAIL_HOST_USER, [from_email], fail_silently=False)
             c.save()
             f.save()
             return redirect('/')

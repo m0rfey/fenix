@@ -70,7 +70,15 @@ class ExpresFiles(models.Model):
     def __str__(self):
         return self.email
 
-
+def upload_file_catalog(instance, filename):
+    d = datetime.datetime.now()
+    if instance.catalog:
+        m = instance.catalog.user_id
+        c = instance.catalog.slug
+    else:
+        m = 0
+        c = 0
+    return '%s/%s/%s/%s' % (d.year, m, c, filename)
 def upload_file(instance, filename):
     d = datetime.datetime.now()
     if instance.expresfile:
@@ -83,7 +91,7 @@ def upload_file(instance, filename):
 
 class FilesCatalog(models.Model):
     catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE, blank=True, null=True)
-    files_s = models.FileField(verbose_name='Файл', upload_to=upload_file)
+    files_s = models.FileField(verbose_name='Файл', upload_to=upload_file_catalog)
 
     class Meta:
         db_table = 'files_catalog'

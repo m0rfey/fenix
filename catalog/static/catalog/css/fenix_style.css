@@ -66,8 +66,8 @@ main{
   font-family: "Times New Roman", Times, serif;
   font-size: 1.4em;
   font-weight: normal;
-  margin: 0 auto;
-  padding: 3%;
+  margin: 0 0 15px auto;
+  padding: 2%;
   text-decoration: none;
   text-shadow: 1px 1px 0 #004E68;
 }
