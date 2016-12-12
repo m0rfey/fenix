@@ -51,3 +51,10 @@ class ExpresFilesForms(forms.ModelForm):
 
 class TestForm(ExpresFilesForms, FilesExpresForms):
     inlineformset_factory = ['email', 'description', 'files_s']
+
+class SearchForm(forms.Form):
+    search = forms.CharField(
+        label='',
+        widget=forms.TextInput({'class':'form-control', 'placeholder':'Поиск'})
+    )
+    field = ['search']

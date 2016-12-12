@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for c in content %}
-        {{ c }}<br>
+    {% for expres in expres_file %}
+        {{ expres.email }}
+        {{ expres.description }}
+        {{ expres.date_add }}
     {% endfor %}
-    <br>
+    {{ file.files_s }}
+
 {% endblock %}

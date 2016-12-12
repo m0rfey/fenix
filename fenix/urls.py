@@ -22,7 +22,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from fenix import settings
 from userprofile import api, views
-from catalog.views import index, category, view_details, expres_save#, ExpresFileWizard
+from catalog.views import index, category, view_details, expres_save, search_key, view_expresfile
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -46,14 +46,11 @@ urlpatterns = [
 
     url(r'^addfile/new/$', expres_save, name='addfile'),
 
-
-    #ExpresFiles
-    #url(r'^addexpresfiles/$', ExpresFileWizard.as_view([ExpresFilesForms, FilesForms]), name='addexpresfiles'),
-    #url(r'^addexpresfiles/$', AddExpresFilesWizard.as_view(FORMS), name='addexpresfiles'),
-    #url(r'^expresfiles/$', ExpresFilesView.as_view(), name='expresfiles'),
+    url(r'^search-key/$', search_key, name='search_key' ),
+    url(r'^(?P<slug>[\w-]+)/$', view_expresfile, name='search_keyA' ),
 
     # Category
-    url(r'^(?P<category_slug>[\w-]+)/', category, name='category'),
+    url(r'^views-(?P<category_slug>[\w-]+)/', category, name='category'),
 
 
     # API

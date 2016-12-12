@@ -3,10 +3,11 @@
 {% endblock %}
 
 {% block content %}
-    <div id="wrapper">
+    {% if not username %}
+        <div id="wrapper">
     <main class="main-wrapper">
     <div id="second">
-    <h3>Загрузить файл</h3>
+    <h3>Загрузить временный файл</h3>
         <div>
         <form action="{% url 'addfile' %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
@@ -17,6 +18,7 @@
     </div>
     </main>
     </div>
+    {% endif %}
     <div class="row">
     {% for file in catalog %}
         <div class="col-md-3 box">
@@ -26,7 +28,6 @@
                 <div class="image" id="image">
                      {% if file.cover|is_portrait %}
                     {% thumbnail file.cover "100x150" crop="center" as im%}
-{#                        style="margin:{{ im|margin:"200x200" }}"#}
                         <img src="{{ im.url }}">
                     {% endthumbnail %}
                 {% else %}

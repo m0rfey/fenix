@@ -13,7 +13,6 @@ from django.contrib.auth.models import UserManager
 def randomStr():
     return (UserManager().make_random_password(length=25))
 
-
 class Category(models.Model):
     name= models.CharField(max_length=20)
     slug = models.SlugField(verbose_name='Алиас')
@@ -79,6 +78,7 @@ def upload_file_catalog(instance, filename):
         m = 0
         c = 0
     return '%s/%s/%s/%s' % (d.year, m, c, filename)
+
 def upload_file(instance, filename):
     d = datetime.datetime.now()
     if instance.expresfile:

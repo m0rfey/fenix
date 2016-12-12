@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
+import os
+
 from django.contrib import auth
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.forms import inlineformset_factory
 from django.http import Http404
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, render_to_response, get_object_or_404
-from django.urls import reverse
-from django.views.generic import TemplateView
+from django.http import HttpResponse
+from django.template.context_processors import csrf
+from django.shortcuts import render, redirect
 
-from catalog.forms import ExpresFilesForms, FilesExpresForms, TestForm
+
+from catalog.forms import ExpresFilesForms, FilesExpresForms, TestForm, SearchForm
 from fenix import settings
 from .models import Category, Catalog, FilesCatalog, FilesExpres, ExpresFiles
 
@@ -19,15 +20,22 @@ from django.contrib.auth.models import UserManager
 def index(request):
     args={}
     args['title'] = 'Home'
-    args['catalog'] = Catalog.objects.filter(is_open=True, category__is_publish=True)
+    args['catalog'] = Catalog.objects.filter(is_open=True, category__is_publish=True).order_by('-date_add')
     args['expres_form'] = TestForm()
     args['username'] = auth.get_user(request).username
     return render(request, '../templates/catalog/index.html', args)
 
 def expres_save(request):
     args={}
+    return_path = request.META.get('HTTP_REFERER', '/')
+    url_site = request.META['HTTP_HOST']
+    args.update(csrf(request))
     args['username'] = auth.get_user(request).username
     args['expres_form'] = TestForm()
+    f_type = ['jpg', 'jpeg', 'JPG', 'JPEG', 'PNG', 'png', 'mkv', 'avi',
+              'flv', 'pdf', 'mp4', 'mp3', 'flac', 'rar', 'zip',
+              'djvu', 'doc', 'docx', 'txt', 'fb2', 'xls', 'xlsx',
+              'wav', 'wma', 'mpg', 'mpeg', 'wmv', 'iso', 'mdf', 'mds']
     if request.POST:
         ema =request.POST.get('email','')
         desc= request.POST.get('description', '')
@@ -35,26 +43,36 @@ def expres_save(request):
         form = TestForm(request.POST, request.FILES)
         random_slug = UserManager().make_random_password(length=25)
         if form.is_valid():
-            c = ExpresFiles.objects.create(
-                email = ema,
-                description = desc,
-                slug = random_slug
-            )
-            f = FilesExpres.objects.create(
-                expresfile = c,
-                files_s = f
-            )
+            mes = 0
+            for i in f_type:
+                if i == str(f).split('.')[-1]:
+                    c = ExpresFiles.objects.create(
+                        email = ema,
+                        description = desc,
+                        slug = random_slug
+                    )
+                    f = FilesExpres.objects.create(
+                        expresfile = c,
+                        files_s = f
+                    )
+                    c.save()
+                    f.save()
+                    print('OK expres files seve')
+                    print()
+                    messages.success(request, "Файл добавлен. Ожидайте письмо с ключем доступа для скачивания",
+                                     extra_tags="alert-success")
+                    mess = 'Ваш email:' + ' ' + ema + ' был использован для загрузки файлов.' + \
+                           ' Ключь доступа: ' + c.slug + '\n' + 'Или перейдите по ссылке: ' + 'http://'+ url_site + '/' + c.slug
+                    from_email = ema
+                    send_mail('Спасибо что выбрали нас!', mess, settings.EMAIL_HOST_USER, [from_email],
+                              fail_silently=False)
 
-            print('OK expres files seve')
-            print()
-            messages.success(request, "Файл добавлен. Ожидайте письмо с ключем доступа для скачивания", extra_tags="alert-success")
-            mess = 'Ваш email:'+' '+ ema + ' был использован для загрузки файлов.'+ \
-                   ' Ключь доступа: ' + c.slug
-            from_email = ema
-            send_mail('Спасибо что выбрали нас!', mess, settings.EMAIL_HOST_USER, [from_email], fail_silently=False)
-            c.save()
-            f.save()
-            return redirect('/')
+                    return redirect('/')
+                else:
+                    mes += 1
+            if mes > 0:
+                messages.error(request, "Файл не подходит ни под одно расширение! Разрешенные файлы %s" % f_type, extra_tags="alert-danger")
+                return redirect(return_path)
 
     return render(request, '../templates/catalog/index.html', args)
 
@@ -63,18 +81,47 @@ def category(request, category_slug):
     args['username'] = auth.get_user(request).username
     try:
         args['title'] = Category.objects.get(slug = category_slug)
-        args['category'] = Catalog.objects.filter(category=Category.objects.get(slug=category_slug), is_open=True)
+        args['category'] = Catalog.objects.filter(category=Category.objects.get(slug=category_slug), is_open=True).order_by('-date_add')
     except Category.DoesNotExist:
         raise Http404
     return render(request, '../templates/catalog/category.html', args)
 
 def view_details(request, file_id):
     args={}
+    args.update(csrf(request))
     try:
         args['username'] = auth.get_user(request).username
         args['title']=Catalog.objects.filter(id=file_id).values('title')
         args['catalog']= Catalog.objects.filter(id=file_id, is_open=True)
-        args['files'] = Files.objects.filter(catalog=file_id)
+        args['files'] = FilesCatalog.objects.filter(catalog=file_id)
     except Catalog.DoesNotExist:
         raise Http404
     return render(request, '../templates/catalog/view_details.html', args)
+
+def search_key(request):
+    args={}
+    try:
+        if request.POST:
+            g = request.POST.get('search', '')
+            file = FilesExpres.objects.get(expresfile_id=ExpresFiles.objects.get(slug=g).id)
+            args['files'] = file
+            file_path = os.path.join(file.files_s.path)
+            f_type = file.files_s.path.split('.')[-1]
+            f_name = file.files_s.path.split('.')[1]
+            print(file.files_s.path)
+            f = open(file_path, 'rb')
+            response = HttpResponse(f, content_type='application/force-download')
+            response['Content-Disposition'] = 'attachment; filename=%s' % f_name +'.'+f_type
+            return response
+    except ExpresFiles.DoesNotExist:
+        messages.error(request, "Файл с таким ключем не найден!", extra_tags="alert-danger")
+        return redirect('/')
+    return render(request, '../templates/catalog/expresfiles.html', args)
+
+def view_expresfile(request, slug):
+    args={}
+    args.update(csrf(request))
+    args['title'] = ExpresFiles.objects.get(slug=slug).email
+    args['expres_file']= ExpresFiles.objects.filter(slug=slug)
+    args['file'] = FilesExpres.objects.get(expresfile_id = ExpresFiles.objects.get(slug=slug))
+    return render(request, '../templates/catalog/views_expresfile.html', args)
