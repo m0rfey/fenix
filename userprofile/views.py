@@ -82,8 +82,9 @@ def profile(request, user_id):
 def edit_profile(request, user_id):
     args={}
     args.update(csrf(request))
-    args['title'] = ''
-    args['username'] = auth.get_user(request).username
+    g =auth.get_user(request).username
+    args['title'] = g
+    args['username'] = g
     args['form'] = EdirProfile(instance= User.objects.get(id =auth.get_user(request).id))
     try:
         args['user'] =  User.objects.get(id=auth.get_user(request).id)
