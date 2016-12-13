@@ -7,7 +7,7 @@ from django.template.context_processors import csrf
 from django.core.mail import send_mail
 
 from fenix import settings
-from userprofile.forms import SignUpForm, SignInForm
+from userprofile.forms import SignUpForm, SignInForm, EdirProfile
 from userprofile.models import User
 
 # Authentication
@@ -78,3 +78,25 @@ def profile(request, user_id):
         raise Http404
     args['username'] = auth.get_user(request).username
     return render(request, '../templates/userprofile/profile.html', args)
+
+def edit_profile(request, user_id):
+    args={}
+    args.update(csrf(request))
+    args['title'] = ''
+    args['username'] = auth.get_user(request).username
+    args['form'] = EdirProfile(instance= User.objects.get(id =auth.get_user(request).id))
+    try:
+        args['user'] =  User.objects.get(id=auth.get_user(request).id)
+        if request.POST:
+            new_user_form = EdirProfile(request.POST or None, request.FILES or None, instance=User.objects.get(id=auth.get_user(request).id))
+            if new_user_form.is_valid():
+                new_user_form.save()
+                messages.success(request, "Изменения сохранены успешно", extra_tags="alert-success")
+                return redirect('/user-%s/' % auth.get_user(request).id)
+            else:
+                messages.error(request, "Что-то пошло не так...", extra_tags="alert-danger")
+
+    except User.DoesNotExist:
+        raise Http404("DoesNotExist")
+
+    return render(request, '../templates/userprofile/editprofile.html', args)

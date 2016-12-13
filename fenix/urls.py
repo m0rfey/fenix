@@ -40,6 +40,8 @@ urlpatterns = [
 
     # Profile
     url(r'^user-(?P<user_id>\d+)/$', views.profile, name='user_profile'),
+    url(r'^user-(?P<user_id>\d+)/edit/$', views.edit_profile, name='edit_profile'),
+    url(r'^user-(?P<user_id>\d+)/edit/save/$', views.edit_profile, name='edit_profile_save'),
 
     # Details
     url(r'^view-(?P<file_id>\d+)/$', view_details, name='details'),

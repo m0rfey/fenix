@@ -115,15 +115,16 @@ def search_key(request):
     args['form_search_key'] = SearchKey()
     if request.POST:
         g = SearchKey(request.POST)#request.POST.get('search', '')
-        print(g)
         if g.is_valid():
-            print(g.cleaned_data['s_key'])
-            args['title'] = ExpresFiles.objects.get(slug=g.cleaned_data['s_key']).email
-            args['expres_file'] = ExpresFiles.objects.filter(slug=g.cleaned_data['s_key'])
-            args['files'] = FilesExpres.objects.filter(expresfile_id=ExpresFiles.objects.get(slug=g.cleaned_data['s_key']))
-            return render(request, '../templates/catalog/views_expresfile.html', args)
+            try:
+                args['title'] = ExpresFiles.objects.get(slug=g.cleaned_data['s_key']).email
+                args['expres_file'] = ExpresFiles.objects.filter(slug=g.cleaned_data['s_key'])
+                args['files'] = FilesExpres.objects.filter(expresfile_id=ExpresFiles.objects.get(slug=g.cleaned_data['s_key']))
+                return render(request, '../templates/catalog/views_expresfile.html', args)
+            except ExpresFiles.DoesNotExist:
+                messages.error(request, "Файл с таким ключем не найден!", extra_tags="alert-danger")
+                return redirect('/')
         else:
-            messages.error(request, "Файл с таким ключем не найден!", extra_tags="alert-danger")
             return redirect('/')
     return render(request, '../templates/catalog/expresfiles.html', args)
 

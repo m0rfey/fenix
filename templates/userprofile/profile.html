@@ -1,4 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-
+    {% if user.avatar %}
+        {% load static thumbnail%}
+        <div class="image" id="image">
+            {% if user.avatar|is_portrait %}
+                {% thumbnail user.avatar "100x150" crop="center" as im%}
+                    <img src="{{ im.url }}">
+                {% endthumbnail %}
+            {% else %}
+                {% thumbnail user.avatar "250x150" crop="center" as im%}
+                    <img src="{{ im.url }}">
+                {% endthumbnail %}
+            {% endif %}
+        </div>
+    {% endif %}
+    <p>{{ user.username }}</p>
+    <p>{{ user.last_name }}</p>
+    <p>{{ user.first_name }}</p>
+    <p>{{ user.email }}</p>
 {% endblock %}

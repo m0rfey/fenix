@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <form action="{% url 'edit_profile_save' user.id %}" method="POST"  class="form-horizontal" enctype="multipart/form-data">
+    {% csrf_token %}
+        {{ form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Сохранить">
+    </form>
+
+{% endblock %}
