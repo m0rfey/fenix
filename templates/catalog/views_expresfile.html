@@ -10,7 +10,9 @@
         <p>Описание:</p>
         <p>{{ expres.description }}</p>
         <br>
-        <a href="{% url 'download' expres.slug %}">Скачать файл</a>
+        {% for f in files %}
+            <a href="{% url 'download' expres.slug f.id %}">Скачать файл [{{ f.files_s }}]</a>
+        {% endfor %}
     {% endfor %}
 </div>
     </div>

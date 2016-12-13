@@ -87,14 +87,14 @@ def category(request, category_slug):
         raise Http404
     return render(request, '../templates/catalog/category.html', args)
 
-def view_details(request, file_id):
+def view_details(request, slug):
     args={}
     args.update(csrf(request))
     try:
         args['username'] = auth.get_user(request).username
-        args['title']=Catalog.objects.filter(id=file_id).values('title')
-        args['catalog']= Catalog.objects.filter(id=file_id, is_open=True)
-        args['files'] = FilesCatalog.objects.filter(catalog=file_id)
+        args['title']=Catalog.objects.get(slug=slug).title
+        args['catalog']= Catalog.objects.get(slug=slug, is_open=True)
+        args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, is_open=True))
     except Catalog.DoesNotExist:
         raise Http404
     return render(request, '../templates/catalog/view_details.html', args)
@@ -105,7 +105,7 @@ def view_expresfile(request, slug):
     args.update(csrf(request))
     args['title'] = ExpresFiles.objects.get(slug=slug).email
     args['expres_file']= ExpresFiles.objects.filter(slug=slug)
-    args['file'] = FilesExpres.objects.get(expresfile_id = ExpresFiles.objects.get(slug=slug))
+    args['files'] = FilesExpres.objects.filter(expresfile_id = ExpresFiles.objects.get(slug=slug))
     return render(request, '../templates/catalog/views_expresfile.html', args)
 
 
@@ -128,13 +128,29 @@ def search_key(request):
             return redirect('/')
     return render(request, '../templates/catalog/expresfiles.html', args)
 
-def download_link(request, slug):
+def download_link(request, slug, file_id):
     url_site = request.META['HTTP_HOST']
-    file = FilesExpres.objects.get(expresfile_id=ExpresFiles.objects.get(slug=slug).id)
-    file_path = os.path.join(file.files_s.path)
-    f_type = file.files_s.path.split('.')[-1]
-    f_email = ExpresFiles.objects.get(slug=slug).email
-    f = open(file_path, 'rb')
-    response = HttpResponse(f, content_type='application/force-download')
-    response['Content-Disposition'] = 'attachment; filename=%s' % url_site+'-'+f_email + '-'+ slug + '_'+ str(file.id) + '.' + f_type
-    return response
+    file = FilesExpres.objects.filter(expresfile_id=ExpresFiles.objects.get(slug=slug).id)
+    for f in file:
+        file_path = os.path.join(f.files_s.path)
+        f_type = f.files_s.path.split('.')[-1]
+        f_email = ExpresFiles.objects.get(slug=slug).email
+        f = open(file_path, 'rb')
+        response = HttpResponse(f, content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename=%s' % url_site+'-'+f_email + '-'+ slug + '_'+ file_id + '.' + f_type
+        return response
+
+def download_d(request, slug, file_id):
+    print(file_id)
+    url_site = request.META['HTTP_HOST']
+    file = FilesCatalog.objects.filter(catalog_id=Catalog.objects.get(slug=slug).id)
+    for f in file:
+        file_path = os.path.join(f.files_s.path)
+        print(file_path)
+        f_type = f.files_s.path.split('.')[-1]
+        f_d = Catalog.objects.get(slug=slug)
+        print(f_d.category.slug)
+        f = open(file_path, 'rb')
+        response = HttpResponse(f, content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename=%s' % url_site+'-'+f_d.user.username +'_'+ f_d.category.slug + '-'+ slug + '_'+ file_id + '.' + f_type
+        return response

@@ -35,7 +35,7 @@
     <div class="row">
     {% for file in catalog %}
         <div class="col-md-3 box">
-        <a href="{% url 'details' file.pk %}">
+        <a href="{% url 'details' file.slug %}">
             {% if file.cover %}
                 {% load static thumbnail%}
                 <div class="image" id="image">

@@ -1,16 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
-    {% for foo in catalog %}
-       <p>{{ foo.title }}</p>
-       <p>{{ foo.cover }}</p>
-        <p>{{ foo.date_add }}</p>
-        <p>{{ foo.category }}</p>
-        <p>{{ foo.user }}</p>
-        <p>{{ foo.description }}</p>
-    {% endfor %}
+            {% if catalog.cover %}
+                {% load static thumbnail%}
+                <div class="image" id="image">
+                     {% if catalog.cover|is_portrait %}
+                    {% thumbnail catalog.cover "200x300" crop="center" as im%}
+                        <img src="{{ im.url }}">
+                    {% endthumbnail %}
+                {% else %}
+                     {% thumbnail catalog.cover "450x300" crop="center" as im%}
+                        <img src="{{ im.url }}">
+                    {% endthumbnail %}
+                {% endif %}
+                </div>
+            {% endif %}
+    <p>{{ catalog.title }}</p>
+    <p>{{ catalog.date_add }}</p>
+    <p>{{ catalog.category }}</p>
+    <p>{{ catalog.user }}</p>
+    <p>{{ catalog.description }}</p>
 
 <h5>Files</h5>
     {% for f in files %}
+        <a href="{% url 'download_d' catalog.slug f.id %}">Скачать файл</a>
         {{ f }}
     {% endfor %}
 
