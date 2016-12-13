@@ -4,6 +4,19 @@
 
 {% block content %}
     {% if not username %}
+        <div class="col-md-4"></div>
+        <div class="col-md-4 search-key">
+        <form action="{% url 'search_key' %}" role="search" method="POST">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    {{ form_search_key}}
+                </div>
+                <div class="col-md-6">
+                    <input type="submit" class="btn bg-primary" value="Найти">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
         <div id="wrapper">
     <main class="main-wrapper">
     <div id="second">

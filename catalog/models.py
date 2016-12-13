@@ -59,7 +59,7 @@ class ExpresFiles(models.Model):
     email = models.EmailField(verbose_name='Email')
     description = models.TextField(verbose_name='Описание',max_length=300)
     slug = models.SlugField(verbose_name='Алиас', blank=True, null=True, default=randomStr, max_length=25)
-    date_add = models.DateTimeField(auto_now_add=True, verbose_name='Время добавления')
+    date_add = models.DateTimeField(auto_now_add=True, verbose_name='Добавлен')
 
     class Meta:
         db_table = 'expresfiles'

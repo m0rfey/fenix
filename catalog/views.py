@@ -10,7 +10,7 @@ from django.template.context_processors import csrf
 from django.shortcuts import render, redirect
 
 
-from catalog.forms import ExpresFilesForms, FilesExpresForms, TestForm, SearchForm
+from catalog.forms import ExpresFilesForms, FilesExpresForms, TestForm, SearchForm, SearchKey
 from fenix import settings
 from .models import Category, Catalog, FilesCatalog, FilesExpres, ExpresFiles
 
@@ -22,6 +22,7 @@ def index(request):
     args['title'] = 'Home'
     args['catalog'] = Catalog.objects.filter(is_open=True, category__is_publish=True).order_by('-date_add')
     args['expres_form'] = TestForm()
+    args['form_search_key'] = SearchKey()
     args['username'] = auth.get_user(request).username
     return render(request, '../templates/catalog/index.html', args)
 
@@ -62,7 +63,7 @@ def expres_save(request):
                     messages.success(request, "Файл добавлен. Ожидайте письмо с ключем доступа для скачивания",
                                      extra_tags="alert-success")
                     mess = 'Ваш email:' + ' ' + ema + ' был использован для загрузки файлов.' + \
-                           ' Ключь доступа: ' + c.slug + '\n' + 'Или перейдите по ссылке: ' + 'http://'+ url_site + '/' + c.slug
+                           ' Ключ доступа: ' + c.slug + '\n' + 'Или перейдите по ссылке: ' + 'http://'+ url_site + '/' + c.slug
                     from_email = ema
                     send_mail('Спасибо что выбрали нас!', mess, settings.EMAIL_HOST_USER, [from_email],
                               fail_silently=False)
@@ -98,25 +99,6 @@ def view_details(request, file_id):
         raise Http404
     return render(request, '../templates/catalog/view_details.html', args)
 
-def search_key(request):
-    args={}
-    try:
-        if request.POST:
-            g = request.POST.get('search', '')
-            file = FilesExpres.objects.get(expresfile_id=ExpresFiles.objects.get(slug=g).id)
-            args['files'] = file
-            file_path = os.path.join(file.files_s.path)
-            f_type = file.files_s.path.split('.')[-1]
-            f_name = file.files_s.path.split('.')[1]
-            print(file.files_s.path)
-            f = open(file_path, 'rb')
-            response = HttpResponse(f, content_type='application/force-download')
-            response['Content-Disposition'] = 'attachment; filename=%s' % f_name +'.'+f_type
-            return response
-    except ExpresFiles.DoesNotExist:
-        messages.error(request, "Файл с таким ключем не найден!", extra_tags="alert-danger")
-        return redirect('/')
-    return render(request, '../templates/catalog/expresfiles.html', args)
 
 def view_expresfile(request, slug):
     args={}
@@ -125,3 +107,33 @@ def view_expresfile(request, slug):
     args['expres_file']= ExpresFiles.objects.filter(slug=slug)
     args['file'] = FilesExpres.objects.get(expresfile_id = ExpresFiles.objects.get(slug=slug))
     return render(request, '../templates/catalog/views_expresfile.html', args)
+
+
+def search_key(request):
+    args = {}
+    args.update(csrf(request))
+    args['form_search_key'] = SearchKey()
+    if request.POST:
+        g = SearchKey(request.POST)#request.POST.get('search', '')
+        print(g)
+        if g.is_valid():
+            print(g.cleaned_data['s_key'])
+            args['title'] = ExpresFiles.objects.get(slug=g.cleaned_data['s_key']).email
+            args['expres_file'] = ExpresFiles.objects.filter(slug=g.cleaned_data['s_key'])
+            args['files'] = FilesExpres.objects.filter(expresfile_id=ExpresFiles.objects.get(slug=g.cleaned_data['s_key']))
+            return render(request, '../templates/catalog/views_expresfile.html', args)
+        else:
+            messages.error(request, "Файл с таким ключем не найден!", extra_tags="alert-danger")
+            return redirect('/')
+    return render(request, '../templates/catalog/expresfiles.html', args)
+
+def download_link(request, slug):
+    url_site = request.META['HTTP_HOST']
+    file = FilesExpres.objects.get(expresfile_id=ExpresFiles.objects.get(slug=slug).id)
+    file_path = os.path.join(file.files_s.path)
+    f_type = file.files_s.path.split('.')[-1]
+    f_email = ExpresFiles.objects.get(slug=slug).email
+    f = open(file_path, 'rb')
+    response = HttpResponse(f, content_type='application/force-download')
+    response['Content-Disposition'] = 'attachment; filename=%s' % url_site+'-'+f_email + '-'+ slug + '_'+ str(file.id) + '.' + f_type
+    return response

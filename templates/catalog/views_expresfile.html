@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="col-md-4">
+     <div class="blog-post">
     {% for expres in expres_file %}
-        {{ expres.email }}
-        {{ expres.description }}
-        {{ expres.date_add }}
-    {% endfor %}
-    {{ file.files_s }}
+        <small>{{ expres.date_add }}</small>
+        <h4 class="blog-post-title">{{ expres.email }}</h4>
 
+        <p>Описание:</p>
+        <p>{{ expres.description }}</p>
+        <br>
+        <a href="{% url 'download' expres.slug %}">Скачать файл</a>
+    {% endfor %}
+</div>
+    </div>
 {% endblock %}

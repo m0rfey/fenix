@@ -58,3 +58,10 @@ class SearchForm(forms.Form):
         widget=forms.TextInput({'class':'form-control', 'placeholder':'Поиск'})
     )
     field = ['search']
+
+class SearchKey(forms.Form):
+    s_key = forms.CharField(
+        label='',
+        widget=forms.TextInput({'class':'form-control', 'placeholder':'Введите ключ'})
+    )
+    field = ['s_key']
