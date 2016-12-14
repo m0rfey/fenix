@@ -3,3 +3,6 @@ fenix/secret.py
 media/
 avatars/
 db.sqlite3
+catalog/__pycache__/
+fenix/__pycache__/
+userprofile/__pycache__/
