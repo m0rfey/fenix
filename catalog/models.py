@@ -77,7 +77,7 @@ def upload_file_catalog(instance, filename):
     else:
         m = 0
         c = 0
-    return '%s/%s/%s/%s' % (d.year, m, c, filename)
+    return u'%s/%s/%s/%s' % (d.year, m, c, filename)
 
 def upload_file(instance, filename):
     d = datetime.datetime.now()
@@ -87,7 +87,7 @@ def upload_file(instance, filename):
     else:
         m = 0
         c = 0
-    return '%s/%s/%s/%s' % (d.year, m, c, filename)
+    return u'%s/%s/%s/%s' % (d.year, m, c, filename)
 
 class FilesCatalog(models.Model):
     catalog = models.ForeignKey(Catalog, on_delete=models.CASCADE, blank=True, null=True)

@@ -63,7 +63,7 @@ def expres_save(request):
                     messages.success(request, "Файл добавлен. Ожидайте письмо с ключем доступа для скачивания",
                                      extra_tags="alert-success")
                     mess = 'Ваш email:' + ' ' + ema + ' был использован для загрузки файлов.' + \
-                           ' Ключ доступа: ' + c.slug + '\n' + 'Или перейдите по ссылке: ' + 'http://'+ url_site + '/' + c.slug
+                           ' Ключ доступа: ' + c.slug + '\n' + 'Или перейдите по ссылке: ' + 'http://'+ url_site + '/get-' + c.slug
                     from_email = ema
                     send_mail('Спасибо что выбрали нас!', mess, settings.EMAIL_HOST_USER, [from_email],
                               fail_silently=False)
@@ -74,7 +74,6 @@ def expres_save(request):
             if mes > 0:
                 messages.error(request, "Файл не подходит ни под одно расширение! Разрешенные файлы %s" % f_type, extra_tags="alert-danger")
                 return redirect(return_path)
-
     return render(request, '../templates/catalog/index.html', args)
 
 def category(request, category_slug):
@@ -83,9 +82,10 @@ def category(request, category_slug):
     try:
         args['title'] = Category.objects.get(slug = category_slug)
         args['category'] = Catalog.objects.filter(category=Category.objects.get(slug=category_slug), is_open=True).order_by('-date_add')
+        return render(request, '../templates/catalog/category.html', args)
     except Category.DoesNotExist:
         raise Http404
-    return render(request, '../templates/catalog/category.html', args)
+
 
 def view_details(request, slug):
     args={}
@@ -95,19 +95,26 @@ def view_details(request, slug):
         args['title']=Catalog.objects.get(slug=slug).title
         args['catalog']= Catalog.objects.get(slug=slug, is_open=True)
         args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, is_open=True))
+        return render(request, '../templates/catalog/view_details.html', args)
     except Catalog.DoesNotExist:
         raise Http404
-    return render(request, '../templates/catalog/view_details.html', args)
+
 
 
 def view_expresfile(request, slug):
     args={}
     args.update(csrf(request))
-    args['title'] = ExpresFiles.objects.get(slug=slug).email
-    args['expres_file']= ExpresFiles.objects.filter(slug=slug)
-    args['files'] = FilesExpres.objects.filter(expresfile_id = ExpresFiles.objects.get(slug=slug))
-    return render(request, '../templates/catalog/views_expresfile.html', args)
-
+    try:
+        a = []
+        args['title'] = ExpresFiles.objects.get(slug=slug).email
+        args['expres_file']= ExpresFiles.objects.filter(slug=slug)
+        args['files'] = FilesExpres.objects.filter(expresfile_id = ExpresFiles.objects.get(slug=slug))
+        for i in args['files']:
+            a.append({'file': {'id': i.id, 'name': str(i.files_s).split('/')[3]}})
+        args['files_m'] = a
+        return render(request, '../templates/catalog/views_expresfile.html', args)
+    except ExpresFiles.DoesNotExist:
+        raise Http404
 
 def search_key(request):
     args = {}
@@ -116,10 +123,15 @@ def search_key(request):
     if request.POST:
         g = SearchKey(request.POST)#request.POST.get('search', '')
         if g.is_valid():
+            a = []
             try:
                 args['title'] = ExpresFiles.objects.get(slug=g.cleaned_data['s_key']).email
                 args['expres_file'] = ExpresFiles.objects.filter(slug=g.cleaned_data['s_key'])
                 args['files'] = FilesExpres.objects.filter(expresfile_id=ExpresFiles.objects.get(slug=g.cleaned_data['s_key']))
+                print(args['files'].count())
+                for i in args['files']:
+                    a.append({'file':{'id': i.id, 'name': str(i.files_s).split('/')[3]}})
+                args['files_m']= a
                 return render(request, '../templates/catalog/views_expresfile.html', args)
             except ExpresFiles.DoesNotExist:
                 messages.error(request, "Файл с таким ключем не найден!", extra_tags="alert-danger")
@@ -128,29 +140,36 @@ def search_key(request):
             return redirect('/')
     return render(request, '../templates/catalog/expresfiles.html', args)
 
+# download file expres
 def download_link(request, slug, file_id):
     url_site = request.META['HTTP_HOST']
-    file = FilesExpres.objects.filter(expresfile_id=ExpresFiles.objects.get(slug=slug).id)
-    for f in file:
-        file_path = os.path.join(f.files_s.path)
-        f_type = f.files_s.path.split('.')[-1]
-        f_email = ExpresFiles.objects.get(slug=slug).email
-        f = open(file_path, 'rb')
-        response = HttpResponse(f, content_type='application/force-download')
-        response['Content-Disposition'] = 'attachment; filename=%s' % url_site+'-'+f_email + '-'+ slug + '_'+ file_id + '.' + f_type
-        return response
+    try:
+        file = FilesExpres.objects.filter(expresfile_id=ExpresFiles.objects.get(slug=slug).id)
+        for f in file:
+            file_name = (f.files_s.name.split('/')[3]).split('.')[0]
+            file_path = os.path.join(f.files_s.path)
+            f_type = f.files_s.path.split('.')[-1]
+            f_email = ExpresFiles.objects.get(slug=slug).email
+            f = open(file_path, 'rb')
+            response = HttpResponse(f, content_type='application/force-download')
+            response['Content-Disposition'] = 'attachment; filename=%s' % url_site+'_'+ file_name + '.' + f_type
+            return response
+    except FilesExpres.DoesNotExist:
+        raise Http404
 
+# download file catalog
 def download_d(request, slug, file_id):
-    print(file_id)
-    url_site = request.META['HTTP_HOST']
-    file = FilesCatalog.objects.filter(catalog_id=Catalog.objects.get(slug=slug).id)
-    for f in file:
-        file_path = os.path.join(f.files_s.path)
-        print(file_path)
-        f_type = f.files_s.path.split('.')[-1]
-        f_d = Catalog.objects.get(slug=slug)
-        print(f_d.category.slug)
-        f = open(file_path, 'rb')
-        response = HttpResponse(f, content_type='application/force-download')
-        response['Content-Disposition'] = 'attachment; filename=%s' % url_site+'-'+f_d.user.username +'_'+ f_d.category.slug + '-'+ slug + '_'+ file_id + '.' + f_type
-        return response
+    try:
+        url_site = request.META['HTTP_HOST']
+        file = FilesCatalog.objects.filter(catalog_id=Catalog.objects.get(slug=slug).id)
+        for f in file:
+            file_name = (f.files_s.name.split('/')[3]).split('.')[0]
+            file_path = os.path.join(f.files_s.path)
+            f_type = f.files_s.path.split('.')[-1]
+            f_d = Catalog.objects.get(slug=slug)
+            f = open(file_path, 'rb')
+            response = HttpResponse(f, content_type='application/force-download')
+            response['Content-Disposition'] = 'attachment; filename=%s' % url_site+'_'+ file_name + '.' + f_type
+            return response
+    except FilesCatalog.DoesNotExist:
+        raise Http404

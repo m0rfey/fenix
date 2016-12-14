@@ -52,7 +52,7 @@ urlpatterns = [
     url(r'^addfile/new/$', expres_save, name='addfile'),
     #
     url(r'^search-key/$', search_key, name='search_key' ),
-    url(r'^get-(?P<slug>[\w-]+)/$', view_expresfile, name='search_keyA' ),
+    url(r'^get-(?P<slug>[\w-]+)/$', view_expresfile, name='search_Link' ),
     url(r'^get-(?P<slug>[\w-]+)/download/(?P<file_id>\d+)/$', download_link, name='download' ),
 
 
