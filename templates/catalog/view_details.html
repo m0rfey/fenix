@@ -1,29 +1,47 @@
 {% extends 'base.html' %}
 {% block content %}
+    <div class="row">
+        <div class="col-md-5">
             {% if catalog.cover %}
-                {% load static thumbnail%}
-                <div class="image" id="image">
-                     {% if catalog.cover|is_portrait %}
-                    {% thumbnail catalog.cover "200x300" crop="center" as im%}
-                        <img src="{{ im.url }}">
-                    {% endthumbnail %}
-                {% else %}
-                     {% thumbnail catalog.cover "450x300" crop="center" as im%}
-                        <img src="{{ im.url }}">
-                    {% endthumbnail %}
+                    {% load static thumbnail%}
+                    <div class="image" id="image">
+                         {% if catalog.cover|is_portrait %}
+                        {% thumbnail catalog.cover "200x300" crop="center" as im%}
+                            <img src="{{ im.url }}">
+                        {% endthumbnail %}
+                    {% else %}
+                         {% thumbnail catalog.cover "450x300" crop="center" as im%}
+                            <img src="{{ im.url }}">
+                        {% endthumbnail %}
+                    {% endif %}
+                    </div>
                 {% endif %}
-                </div>
-            {% endif %}
-    <p>{{ catalog.title }}</p>
-    <p>{{ catalog.date_add }}</p>
-    <p>{{ catalog.category }}</p>
-    <p>{{ catalog.user }}</p>
-    <p>{{ catalog.description }}</p>
-
-<h5>Files</h5>
-    {% for f in files %}
-        <a href="{% url 'download_d' catalog.slug f.id %}">Скачать файл</a>
-        {{ f }}
-    {% endfor %}
-
+        </div>
+        <div class="col-md-7 format-text">
+            <h3>{{ catalog.title }}</h3>
+            <p>Добавлен: {{ catalog.date_add }}</p>
+            <p>{{ category_verbos_name }}: {{ catalog.category }}</p>
+            <p>Автор: {{ catalog.user }}</p>
+            <p>Описание: <br>{{ catalog.description }}</p>
+        </div>
+    </div>
+    <div class="row">
+    <h4>Files</h4>
+    <table class="table table-striped table-hover ">
+            <thead>
+            <tr>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for i in files_m %}
+                    <tr>
+                        <td>{{ i.file.name }}</td>
+                        <td><a href="{% url 'download_d' catalog.slug i.file.id %}">Скачать файл</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

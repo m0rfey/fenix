@@ -91,16 +91,19 @@ def view_details(request, slug):
     args={}
     args.update(csrf(request))
     try:
+        a=[]
         args['username'] = auth.get_user(request).username
         args['title']=Catalog.objects.get(slug=slug).title
         args['catalog']= Catalog.objects.get(slug=slug, is_open=True)
         args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, is_open=True))
+        for i in args['files']:
+            a.append({'file': {'id': i.id, 'name': str(i.files_s).split('/')[3]}})
+        args['files_m'] = a
         return render(request, '../templates/catalog/view_details.html', args)
     except Catalog.DoesNotExist:
         raise Http404
 
-
-
+# Get LINK
 def view_expresfile(request, slug):
     args={}
     args.update(csrf(request))
@@ -116,6 +119,7 @@ def view_expresfile(request, slug):
     except ExpresFiles.DoesNotExist:
         raise Http404
 
+# Get KEY
 def search_key(request):
     args = {}
     args.update(csrf(request))
@@ -138,7 +142,7 @@ def search_key(request):
                 return redirect('/')
         else:
             return redirect('/')
-    return render(request, '../templates/catalog/expresfiles.html', args)
+    return render(request, '../templates/catalog/views_expresfile.html', args)
 
 # download file expres
 def download_link(request, slug, file_id):

@@ -86,3 +86,6 @@ main{
 .search-key{
   margin-bottom: 20px;
 }
+.format-text{
+      word-wrap: break-word;
+}
