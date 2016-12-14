@@ -58,7 +58,9 @@
                   <ul class="dropdown-menu" role="menu">
                     <li><a href="{% url 'user_profile' user.id%}">Профиль</a></li>
                     <li><a href="{% url 'edit_profile' user.id%}">Редактировать профиль</a></li>
-                    <li><a href="#">Мои файлы</a></li>
+                      <li class="divider"></li>
+                    <li><a href="{% url 'myfiles' user.id %}">Мои файлы</a></li>
+                    <li><a href="{% url 'addfiles' %}">Добавить файлы</a></li>
                     <li class="divider"></li>
                     <li><a href="{% url 'signout' %}">Выход</a></li>
                   </ul>

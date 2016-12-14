@@ -50,7 +50,7 @@
                 {% endif %}
                 </div>
             {% endif %}
-        <div class="title" id="title">{{ file.title }}</div>
+        <div class="title" id="title"><h5>{{ file.title }}</h5></div>
         </a>
             <div class="category" id="category">{{ category_verbos_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
 

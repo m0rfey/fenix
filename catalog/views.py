@@ -10,7 +10,8 @@ from django.template.context_processors import csrf
 from django.shortcuts import render, redirect
 
 
-from catalog.forms import ExpresFilesForms, FilesExpresForms, TestForm, SearchForm, SearchKey
+from catalog.forms import ExpresFilesForms, FilesExpresForms, TestForm, SearchForm, SearchKey, AddCatalogForm, \
+    FilesCatalogForms, CatalogForms
 from fenix import settings
 from .models import Category, Catalog, FilesCatalog, FilesExpres, ExpresFiles
 
@@ -177,3 +178,46 @@ def download_d(request, slug, file_id):
             return response
     except FilesCatalog.DoesNotExist:
         raise Http404
+
+def myfiles(request, user_id):
+    args={}
+    args.update(csrf(request))
+    args['username']= auth.get_user(request).username
+    args['title']= 'Мои файлы'
+    args['catalog'] = Catalog.objects.filter(is_open=True, category__is_publish=True, user_id=auth.get_user(request).id).order_by('-date_add')
+    return render(request, '../templates/catalog/myfiles.html', args)
+
+def addfile(request):
+    args={}
+    args.update(csrf(request))
+    args['username'] = auth.get_user(request).username
+    args['title'] = 'Добаввть файл'
+    args['form_c'] = CatalogForms()#AddCatalogForm()
+    args['form_f'] = FilesCatalogForms()
+    return render(request, '../templates/catalog/addfiles.html', args)
+
+def get_addfile(request):
+    args = {}
+    args.update(csrf(request))
+    return_path = request.META.get('HTTP_REFERER', '/')
+    args['form_c'] = CatalogForms()
+    args['form_f'] = FilesCatalogForms()
+    if request.POST:
+        form_c = CatalogForms(request.POST, request.FILES)
+        form_f = FilesCatalogForms(request.FILES)
+        if form_c.is_valid():
+            form_c.instance.user =request.user
+            form_c.save()
+            gn = FilesCatalog.objects.create(
+                catalog = Catalog.objects.get(id=form_c.instance.id),
+                files_s = request.FILES.get('files_s','')
+            )
+            gn.save()
+            messages.success(request, "Файл добавлен.",
+                             extra_tags="alert-success")
+            return redirect('/')
+        else:
+            messages.error(request, "Файл не добавлен.",
+                             extra_tags="alert-danger")
+            return redirect(return_path)
+    return redirect('/')

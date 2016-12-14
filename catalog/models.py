@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.dispatch import receiver
+from django.utils.text import slugify
 
 from fenix.settings import MEDIA_ROOT
 from userprofile.models import User
@@ -11,7 +12,7 @@ from django.contrib.auth.models import UserManager
 
 
 def randomStr():
-    return (UserManager().make_random_password(length=25))
+    return str(datetime.datetime.now().year)+'-'+(UserManager().make_random_password(length=25))
 
 class Category(models.Model):
     name= models.CharField(max_length=20)
@@ -31,21 +32,21 @@ def upload_cover(instance, filename):
 
 class Catalog(models.Model):
     cover = ImageField(verbose_name='Постер', upload_to=upload_cover)
-    thumb_cover = ImageField(upload_to='media/')
+    #thumb_cover = ImageField(upload_to='media/')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
     title = models.CharField(max_length=50, verbose_name='Заголовок')
     category = models.ForeignKey(Category, verbose_name='Категория')
     user = models.ForeignKey(User, verbose_name='Автор')
     description = models.TextField(verbose_name='Описание', max_length=300)
-    slug = models.SlugField(verbose_name='Алиас')
+    slug = models.SlugField(verbose_name='Алиас', default=randomStr, unique=True)
     is_open = models.BooleanField(verbose_name='Для всех', help_text='Дать доступ к файлу для всех пользователей')
     is_slug = models.BooleanField(verbose_name='По ссылке', help_text='Файл будет доступет только по ссылке')
     is_for_me = models.BooleanField(verbose_name='Только для меня', help_text='Файл будет доступен только Вам')
 
-    def save(self, *args, **kwargs):
-        if self.cover:
-            self.thumb_cover = get_thumbnail(self.cover, '150x200', quality=95).url
-        super(Catalog, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.cover:
+    #         self.thumb_cover = get_thumbnail(self.cover, '150x200', quality=95).url
+    #     super(Catalog, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'catalog'
@@ -58,7 +59,7 @@ class Catalog(models.Model):
 class ExpresFiles(models.Model):
     email = models.EmailField(verbose_name='Email')
     description = models.TextField(verbose_name='Описание',max_length=300)
-    slug = models.SlugField(verbose_name='Алиас', blank=True, null=True, default=randomStr, max_length=25)
+    slug = models.SlugField(verbose_name='Алиас', blank=True, null=True, default=randomStr, unique=True)#max_length=25
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Добавлен')
 
     class Meta:
