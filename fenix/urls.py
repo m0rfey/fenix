@@ -23,7 +23,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from fenix import settings
 from userprofile import api, views
 from catalog.views import index, category, view_details, expres_save, search_key, view_expresfile, download_link, \
-    download_d, myfiles, addfile, get_addfile
+    download_d, myfiles, addfile, get_addfile, search
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -57,6 +57,8 @@ urlpatterns = [
     url(r'^search-key/$', search_key, name='search_key' ),
     url(r'^get-(?P<slug>[\w-]+)/$', view_expresfile, name='search_Link' ),
     url(r'^get-(?P<slug>[\w-]+)/download/(?P<file_id>\d+)/$', download_link, name='download' ),
+
+    url(r'^search/$', search, name='search'),
 
 
 

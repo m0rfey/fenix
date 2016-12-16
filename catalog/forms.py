@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
-from django.contrib import auth
-from django.forms import inlineformset_factory, widgets
-from django.http import request
-
 from .models import Category, Catalog, ExpresFiles, FilesCatalog, FilesExpres
-
-from django.utils.text import slugify
 
 class CatalogForms(forms.ModelForm):
     cover = forms.ImageField()

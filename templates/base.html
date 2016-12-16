@@ -38,7 +38,7 @@
             <li><a href="{% url 'category' category.slug %}">{{ category.name }}</a></li>
           {% endfor %}
       </ul>
-        <form action="." method="POST" role="search" class="navbar-form navbar-left">
+        <form action="{% url 'search' %}" method="get" role="search" class="navbar-form navbar-left">
             <div class="form-group">
                 {% csrf_token %}
                 {{ search }}

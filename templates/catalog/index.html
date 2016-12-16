@@ -1,60 +1,75 @@
 {% extends 'base.html' %}
+{% load static thumbnail%}
 {% block head %}
 {% endblock %}
 
 {% block content %}
     {% if not username %}
-        <div class="col-md-4"></div>
-        <div class="col-md-4 search-key">
-        <form action="{% url 'search_key' %}" role="search" method="POST">
-                {% csrf_token %}
-                <div class="col-md-6">
-                    {{ form_search_key}}
+        <div class="row" style="margin-bottom: 15px">
+            <div class="col-md-4"></div>
+                <div class="col-md-4 search-key">
+                    <form action="{% url 'search_key' %}" role="search" method="POST">
+                        {% csrf_token %}
+                        <div class="col-md-6 col-xs-8 ">
+                            {{ form_search_key}}
+                        </div>
+                        <div class="col-md-6 col-xs-4">
+                            <input type="submit" class="btn bg-primary" value="Найти">
+                        </div>
+                    </form>
                 </div>
-                <div class="col-md-6">
-                    <input type="submit" class="btn bg-primary" value="Найти">
-                </div>
-            </form>
+            <div class="col-md-4"></div>
         </div>
-        <div class="col-md-4"></div>
-        <div id="wrapper">
-    <main class="main-wrapper">
-    <div id="second">
-    <h3>Загрузить временный файл</h3>
-        <div>
-        <form action="{% url 'addfile' %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ expres_form.as_p }}
-            <input type="submit" class="btn bg-primary" value="Загрузить">
-        </form>
+        <div class="row">
+            <div id="wrapper">
+                <main class="main-wrapper">
+                    <div id="second">
+                    <h3>Загрузить временный файл</h3>
+                        <div>
+                            <form action="{% url 'addfile' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {{ expres_form.as_p }}
+                                <input type="submit" class="btn bg-primary" value="Загрузить">
+                            </form>
+                        </div>
+                    </div>
+                </main>
             </div>
-    </div>
-    </main>
-    </div>
+        </div>
     {% endif %}
     <div class="row">
     {% for file in catalog %}
-        <div class="col-md-3 box">
-        <a href="{% url 'details' file.slug %}">
-            {% if file.cover %}
-                {% load static thumbnail%}
-                <div class="image" id="image">
-                     {% if file.cover|is_portrait %}
-                    {% thumbnail file.cover "100x150" crop="center" as im%}
-                        <img src="{{ im.url }}">
-                    {% endthumbnail %}
-                {% else %}
-                     {% thumbnail file.cover "250x150" crop="center" as im%}
-                        <img src="{{ im.url }}">
-                    {% endthumbnail %}
-                {% endif %}
-                </div>
-            {% endif %}
-        <div class="title" id="title"><h5>{{ file.title }}</h5></div>
-        </a>
-            <div class="category" id="category">{{ category_verbos_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
+    {% if file.cover %}
+{#        Portret #}
+        {% if file.cover|is_portrait %}
+            <div class="col-md-3 box col-xs-6">
+                <a href="{% url 'details' file.slug %}">
 
+                        <div class="image" id="image">
+                            {% thumbnail file.cover "100x150" crop="center" as im%}
+                                <img src="{{ im.url }}">
+                            {% endthumbnail %}
+                        </div>
+                <div class="title" id="title"><h5>{{ file.title }}</h5></div>
+                </a>
+            <div class="category" id="category">{{ category_verbos_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
+            </div>
+
+        {% else %}
+{#        ------------------------------      #}
+        <div class="col-md-3 box col-xs-12">
+         <a href="{% url 'details' file.slug %}">
+            <div class="image" id="image">
+                    {% thumbnail file.cover "250x150" crop="center" as im%}
+                        <img src="{{ im.url }}">
+                    {% endthumbnail %}
+            </div>
+                <div class="title" id="title"><h5>{{ file.title }}</h5></div>
+         </a>
+            <div class="category" id="category">{{ category_verbos_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
         </div>
+            {% endif %}
+        {% endif %}
     {% endfor %}
     </div>
 
