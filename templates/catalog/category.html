@@ -1,28 +1,40 @@
 {% extends 'base.html' %}
+{% load static thumbnail%}
 <title>{{ title }}</title>
 {% block content %}
     <div class="row">
     {% for file in category %}
-        <div class="col-md-3 box">
-        <a href="{% url 'details' file.pk %}">
-            {% if file.cover %}
-                {% load static thumbnail%}
-                <div class="image" id="image">
-                     {% if file.cover|is_portrait %}
-                    {% thumbnail file.cover "100x150" crop="center" as im%}
+        {% if file.cover %}
+{#        Portret #}
+        {% if file.cover|is_portrait %}
+            <div class="col-md-3 box col-xs-6">
+                <a href="{% url 'details' file.slug %}">
+
+                        <div class="image" id="image">
+                            {% thumbnail file.cover "100x150" crop="center" as im%}
+                                <img src="{{ im.url }}">
+                            {% endthumbnail %}
+                        </div>
+                <div class="title" id="title"><h5>{{ file.title }}</h5></div>
+                </a>
+            <div class="category" id="category">{{ category_verbos_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
+            </div>
+
+        {% else %}
+{#        ------------------------------      #}
+        <div class="col-md-3 box col-xs-12">
+         <a href="{% url 'details' file.slug %}">
+            <div class="image" id="image">
+                    {% thumbnail file.cover "250x150" crop="center" as im%}
                         <img src="{{ im.url }}">
                     {% endthumbnail %}
-                {% else %}
-                     {% thumbnail file.cover "250x150" crop="center" as im%}
-                        <img src="{{ im.url }}">
-                    {% endthumbnail %}
-                {% endif %}
-                </div>
-            {% endif %}
-             <div class="title" id="title">{{ file.title }}</div>
-        </a>
+            </div>
+                <div class="title" id="title"><h5>{{ file.title }}</h5></div>
+         </a>
             <div class="category" id="category">{{ category_verbos_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
         </div>
+            {% endif %}
+        {% endif %}
     {% endfor %}
     </div>
 {% endblock %}
