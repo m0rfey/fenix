@@ -26,17 +26,17 @@ class CatalogForms(forms.ModelForm):
         label='Опубликован',
         help_text='Доступен всем',
         required=False,
-        widget=forms.CheckboxInput())
+        widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsOpen(window.event)'}))
     is_slug = forms.BooleanField(
         label='Доступ по ссылке',
         help_text='Доступно только по ссылке',
         required=False,
-        widget=forms.CheckboxInput())
+        widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsSlug(window.event)'}))
     is_for_me = forms.BooleanField(
         label='Только для меня',
         help_text='Доступно только для Вас',
         required=False,
-        widget=forms.CheckboxInput())
+        widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsForMe(window.event)'}))
 
     class Meta:
         model = Catalog
