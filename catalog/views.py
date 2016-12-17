@@ -185,7 +185,7 @@ def myfiles(request, user_id):
     args.update(csrf(request))
     args['username']= auth.get_user(request).username
     args['title']= 'Мои файлы'
-    args['catalog'] = Catalog.objects.filter(is_open=True, category__is_publish=True, user_id=auth.get_user(request).id).order_by('-date_add')
+    args['catalog'] = Catalog.objects.filter(category__is_publish=True, user_id=auth.get_user(request).id).order_by('-date_add')
     return render(request, '../templates/catalog/myfiles.html', args)
 
 def addfile(request):
@@ -199,6 +199,7 @@ def addfile(request):
 
 def get_addfile(request):
     args = {}
+    url_site = request.META['HTTP_HOST']
     args.update(csrf(request))
     return_path = request.META.get('HTTP_REFERER', '/')
     args['form_c'] = CatalogForms()
@@ -214,6 +215,16 @@ def get_addfile(request):
                 files_s = request.FILES.get('files_s','')
             )
             gn.save()
+
+            if form_c.instance.is_slug == True:
+                mess = 'Вы загрузили файлы. При этом выбрав пукт доступа к файлу "Доступ по ссылке". ' + \
+                       'Перейдите по ссылке: ' + 'http://' + url_site + '/slug-' + form_c.instance.slug
+                from_email = auth.get_user(request).email
+                send_mail('Загрузка файлов', mess, settings.EMAIL_HOST_USER, [from_email],
+                          fail_silently=False)
+
+
+            print(form_c.instance.is_for_me)
             messages.success(request, "Файл добавлен.",
                              extra_tags="alert-success")
             return redirect('/')
@@ -223,9 +234,24 @@ def get_addfile(request):
             return redirect(return_path)
     return redirect('/')
 
+def view_details_slug(request, slug):
+    args={}
+    args.update(csrf(request))
+    try:
+        a=[]
+        args['username'] = auth.get_user(request).username
+        args['title']=Catalog.objects.get(slug=slug).title
+        args['catalog']= Catalog.objects.get(slug=slug, is_slug=True)
+        args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, is_slug=True))
+        for i in args['files']:
+            a.append({'file': {'id': i.id, 'name': str(i.files_s).split('/')[3]}})
+        args['files_m'] = a
+        return render(request, '../templates/catalog/view_details.html', args)
+    except Catalog.DoesNotExist:
+        raise Http404
 
 
-
+# SEARCH
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
                     normspace=re.compile(r'\s{2,}').sub):
@@ -261,17 +287,9 @@ def search(request):
         query_string = (args['query_string']).upper()
         entry_query = get_query(query_string, [('title').upper(), ('description').upper(), ])
 
-    args['found_entries'] = Catalog.objects.filter(entry_query).order_by('-date_add')
+    args['found_entries'] = Catalog.objects.filter(entry_query, is_open=True).order_by('-date_add')
 
     return render(request, '../templates/catalog/search_result.html', args)
 
+# END SEARCH
 
-# def search(request):
-#     args={}
-#     return_path = request.META.get('HTTP_REFERER', '/')
-#     if request.POST:
-#         form = SearchForm(request.POST)
-#         if form.is_valid():
-#             args['result'] = Catalog.objects.filter(title__icontains=form.changed_data['search'])
-#
-#     return render(request, '../templates/catalog/search_result.html', args)

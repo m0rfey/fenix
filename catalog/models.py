@@ -28,11 +28,10 @@ class Category(models.Model):
         return self.name
 
 def upload_cover(instance, filename):
-    return '%s/%s/%s/cover/%s' % (datetime.datetime.now().year, instance.user_id, instance.category.slug, filename)
+    return u'%s/%s/%s/cover/%s' % (datetime.datetime.now().year, instance.user_id, instance.category.slug, filename)
 
 class Catalog(models.Model):
     cover = ImageField(verbose_name='Постер', upload_to=upload_cover)
-    #thumb_cover = ImageField(upload_to='media/')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
     title = models.CharField(max_length=50, verbose_name='Заголовок')
     category = models.ForeignKey(Category, verbose_name='Категория')
@@ -40,13 +39,8 @@ class Catalog(models.Model):
     description = models.TextField(verbose_name='Описание', max_length=300)
     slug = models.SlugField(verbose_name='Алиас', default=randomStr, unique=True)
     is_open = models.BooleanField(verbose_name='Для всех', help_text='Дать доступ к файлу для всех пользователей')
-    is_slug = models.BooleanField(verbose_name='По ссылке', help_text='Файл будет доступет только по ссылке')
+    is_slug = models.BooleanField(verbose_name='По ссылке', help_text='Файл будет доступен только по ссылке')
     is_for_me = models.BooleanField(verbose_name='Только для меня', help_text='Файл будет доступен только Вам')
-
-    # def save(self, *args, **kwargs):
-    #     if self.cover:
-    #         self.thumb_cover = get_thumbnail(self.cover, '150x200', quality=95).url
-    #     super(Catalog, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'catalog'

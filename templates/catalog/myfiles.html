@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 {% for file in catalog %}
+    {% if file.is_open %}
         <div class="col-md-3 box">
-
         <a href="{% url 'details' file.slug %}">
             {% if file.cover %}
                 {% load static thumbnail%}
@@ -27,5 +27,32 @@
             <div class="col-md-6"><a href="#">Удалить</a></div>
             </div>
         </div>
+        {% else %}
+         <div class="col-md-3 box">
+        <a href="{% url 'details_slug' file.slug %}">
+            {% if file.cover %}
+                {% load static thumbnail%}
+                <div class="image" id="image">
+                     {% if file.cover|is_portrait %}
+                    {% thumbnail file.cover "100x150" crop="center" as im%}
+                        <img src="{{ im.url }}">
+                    {% endthumbnail %}
+                {% else %}
+                     {% thumbnail file.cover "250x150" crop="center" as im%}
+                        <img src="{{ im.url }}">
+                    {% endthumbnail %}
+                {% endif %}
+                </div>
+            {% endif %}
+        <div class="title" id="title"><h5>{{ file.title }}</h5></div>
+        </a>
+
+            <div class="category" id="category">{{ category_verbos_name }}: <a href="{% url 'category' file.category.slug %}">{{ file.category }}</a></div>
+            <div class="row">
+            <div class="col-md-6"><a href="#">Редактировать</a></div>
+            <div class="col-md-6"><a href="#">Удалить</a></div>
+            </div>
+        </div>
+    {% endif %}
     {% endfor %}
 {% endblock %}
