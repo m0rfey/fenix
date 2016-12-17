@@ -1,4 +1,36 @@
 {% extends 'base.html' %}
+{% block script %}
+    <script type="text/javascript">
+    function OptionsSelectedIsOpen() {
+            if (document.getElementById("id_is_open").checked == true){
+                document.getElementById("id_is_slug").disabled = true;
+                document.getElementById("id_is_for_me").disabled = true;
+            }else {
+                document.getElementById("id_is_slug").disabled = false;
+                document.getElementById("id_is_for_me").disabled = false;
+            }
+
+        }
+    function OptionsSelectedIsSlug() {
+        if (document.getElementById("id_is_slug").checked == true){
+            document.getElementById("id_is_open").disabled = true;
+            document.getElementById("id_is_for_me").disabled = true;
+            }else {
+            document.getElementById("id_is_open").disabled = false;
+            document.getElementById("id_is_for_me").disabled = false;
+        }
+        }
+    function OptionsSelectedIsForMe() {
+            if (document.getElementById("id_is_for_me").checked == true){
+                document.getElementById("id_is_slug").disabled = true;
+                document.getElementById("id_is_open").disabled = true;
+            }else {
+                document.getElementById("id_is_slug").disabled = false;
+                document.getElementById("id_is_open").disabled = false;
+            }
+        }
+</script>
+{% endblock %}
 {% block content %}
     <div class="col-md-6">
         <form action="{% url 'add' %}" method="POST" class="form-horizontal" enctype="multipart/form-data">
