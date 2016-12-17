@@ -214,6 +214,12 @@ def addfile(request):
         return redirect('/')
 
 def get_addfile(request):
+    # for count, x in enumerate(request.FILES.getlist('files_s')):
+    #     def proces(f):
+    #         with open('', 'wb+') as destination:
+    #             for file in f.chunks():
+    #                 destination.write(file)
+    #     pass
     args = {}
     url_site = request.META['HTTP_HOST']
     args.update(csrf(request))
@@ -226,11 +232,12 @@ def get_addfile(request):
         if form_c.is_valid():
             form_c.instance.user =request.user
             form_c.save()
-            gn = FilesCatalog.objects.create(
-                catalog = Catalog.objects.get(id=form_c.instance.id),
-                files_s = request.FILES.get('files_s','')
-            )
-            gn.save()
+            for count, x in enumerate(request.FILES.getlist('files_s')):
+                gn = FilesCatalog.objects.create(
+                    catalog = Catalog.objects.get(id=form_c.instance.id),
+                    files_s = x
+                )
+                gn.save()
 
             if form_c.instance.choices == 'is_slug':
                 mess = 'Вы загрузили файлы. При этом выбрав пукт доступа к файлу "Доступ по ссылке". ' + \
@@ -253,7 +260,7 @@ def get_addfile(request):
             messages.error(request, "Файл не добавлен.",
                              extra_tags="alert-danger")
             return redirect(return_path)
-    return redirect('/')
+    return redirect(return_path)
 
 def view_details_slug(request, slug):
     args={}
@@ -262,8 +269,8 @@ def view_details_slug(request, slug):
         a=[]
         args['username'] = auth.get_user(request).username
         args['title']=Catalog.objects.get(slug=slug).title
-        args['catalog']= Catalog.objects.get(slug=slug, choices='is_slug')
-        args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, choices='is_slug'))
+        args['catalog']= Catalog.objects.get(slug=slug)
+        args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug))
         for i in args['files']:
             a.append({'file': {'id': i.id, 'name': str(i.files_s).split('/')[3]}})
         args['files_m'] = a

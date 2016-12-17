@@ -43,7 +43,7 @@ class CatalogForms(forms.ModelForm):
     choices = forms.ChoiceField(
         label='Публикация',
         choices=CHOICES,
-        widget=forms.RadioSelect({'style':"'list-style':'none'"})
+        widget=forms.RadioSelect()
     )
 
     class Meta:
@@ -62,21 +62,17 @@ class FilesExpresForms(forms.ModelForm):
     files_s = forms.FileField(
         label='Файл',
         required=False,
-        widget= forms.FileInput())
+        widget= forms.FileInput({'multiple':''})
+    )
     class Meta:
         model=FilesExpres
         fields=['files_s']
 
 class FilesCatalogForms(forms.ModelForm):
-    # catalog = forms.ModelChoiceField(
-    #     required=False,
-    #     queryset=Catalog.objects.all(),
-    #     widget=forms.Select()
-    # )
     files_s = forms.FileField(
         label='Файл',
         required=False,
-        widget= forms.FileInput())
+        widget= forms.FileInput({'multiple':''}))
     class Meta:
         model=FilesExpres
         fields=['files_s']

@@ -109,9 +109,3 @@ class FilesExpres(models.Model):
 
     def __str__(self):
         return str(self.files_s)
-
-# @receiver(ExpresFiles, sender=FilesExpres )
-# def FileExpresDelete(sender, **kwargs):
-#     file = kwargs['instance']
-#     storage, path = file.file_s.storage, file.file_s.path
-#     storage.delete(path)
