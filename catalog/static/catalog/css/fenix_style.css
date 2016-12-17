@@ -1,5 +1,9 @@
 body{background: rgba(239, 238, 238, 0.25);}
 
+ul#id_choices{
+  list-style: none !important;
+}
+
 .box {
     height: 250px;
     border: 1px dotted rgba(51,153,243,0.39);

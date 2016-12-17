@@ -22,21 +22,29 @@ class CatalogForms(forms.ModelForm):
         label='Описание',
         max_length=300,
         widget=forms.Textarea({'class': 'form-control', 'placeholder': 'Описание'}))
-    is_open = forms.BooleanField(
-        label='Опубликован',
-        help_text='Доступен всем',
-        required=False,
-        widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsOpen(window.event)'}))
-    is_slug = forms.BooleanField(
-        label='Доступ по ссылке',
-        help_text='Доступно только по ссылке',
-        required=False,
-        widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsSlug(window.event)'}))
-    is_for_me = forms.BooleanField(
-        label='Только для меня',
-        help_text='Доступно только для Вас',
-        required=False,
-        widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsForMe(window.event)'}))
+    # is_open = forms.BooleanField(
+    #     label='Опубликован',
+    #     help_text='Доступен всем',
+    #     required=False,
+    #     widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsOpen(window.event)'}))
+    # is_slug = forms.BooleanField(
+    #     label='Доступ по ссылке',
+    #     help_text='Доступно только по ссылке',
+    #     required=False,
+    #     widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsSlug(window.event)'}))
+    # is_for_me = forms.BooleanField(
+    #     label='Только для меня',
+    #     help_text='Доступно только для Вас',
+    #     required=False,
+    #     widget=forms.CheckboxInput({'onclick': 'return OptionsSelectedIsForMe(window.event)'}))
+    CHOICES = [('is_open', 'Опубликован'),
+               ('is_slug', 'Доступ по ссылке'),
+               ('is_for_me', 'Только для меня')]
+    choices = forms.ChoiceField(
+        label='Публикация',
+        choices=CHOICES,
+        widget=forms.RadioSelect({'style':"'list-style':'none'"})
+    )
 
     class Meta:
         model = Catalog
@@ -44,9 +52,11 @@ class CatalogForms(forms.ModelForm):
                   'cover',
                   'category',
                   'description',
-                  'is_open',
-                  'is_slug',
-                  'is_for_me']
+                  'choices'
+                  # 'is_open',
+                  # 'is_slug',
+                  # 'is_for_me',
+                  ]
 
 class FilesExpresForms(forms.ModelForm):
     files_s = forms.FileField(

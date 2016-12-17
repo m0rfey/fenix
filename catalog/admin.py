@@ -29,9 +29,10 @@ class CatalogAdmin(admin.ModelAdmin):
                           'slug',
                           'description']}),
         #('Дата добавления', {'fields': ['date_add'], 'classes': ['collapse']}),
-        ('Доступ к файлу', {'fields':['is_open',
-                                      'is_slug',
-                                      'is_for_me']})
+        ('Доступ к файлу', {'fields':[#'is_open',
+                                      #'is_slug',
+                                      #'is_for_me',
+                                      'choices']})
     ]
     inlines = [FilesCatalogInLine]
 

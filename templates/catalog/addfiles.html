@@ -32,6 +32,11 @@
 </script>
 {% endblock %}
 {% block content %}
+    <style>
+    ul#id_choices{
+        list-style: none;
+    }
+    </style>
     <div class="col-md-6">
         <form action="{% url 'add' %}" method="POST" class="form-horizontal" enctype="multipart/form-data">
             {% csrf_token %}

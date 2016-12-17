@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.http import Http404
 from django.http import HttpResponse
-from django.template import RequestContext
 from django.template.context_processors import csrf
 from django.shortcuts import render, redirect, render_to_response
 
@@ -22,7 +21,7 @@ from django.db.models import Q
 def index(request):
     args={}
     args['title'] = 'Home'
-    args['catalog'] = Catalog.objects.filter(is_open=True, category__is_publish=True).order_by('-date_add')
+    args['catalog'] = Catalog.objects.filter(choices='is_open', category__is_publish=True).order_by('-date_add')
     args['expres_form'] = TestForm()
     args['form_search_key'] = SearchKey()
     args['username'] = auth.get_user(request).username
@@ -83,7 +82,7 @@ def category(request, category_slug):
     args['username'] = auth.get_user(request).username
     try:
         args['title'] = Category.objects.get(slug = category_slug)
-        args['category'] = Catalog.objects.filter(category=Category.objects.get(slug=category_slug), is_open=True).order_by('-date_add')
+        args['category'] = Catalog.objects.filter(category=Category.objects.get(slug=category_slug), choices='is_open').order_by('-date_add')
         return render(request, '../templates/catalog/category.html', args)
     except Category.DoesNotExist:
         raise Http404
@@ -96,8 +95,8 @@ def view_details(request, slug):
         a=[]
         args['username'] = auth.get_user(request).username
         args['title']=Catalog.objects.get(slug=slug).title
-        args['catalog']= Catalog.objects.get(slug=slug, is_open=True)
-        args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, is_open=True))
+        args['catalog']= Catalog.objects.get(slug=slug, choices='is_open')
+        args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, choices='is_open'))
         for i in args['files']:
             a.append({'file': {'id': i.id, 'name': str(i.files_s).split('/')[3]}})
         args['files_m'] = a
@@ -184,18 +183,35 @@ def myfiles(request, user_id):
     args={}
     args.update(csrf(request))
     args['username']= auth.get_user(request).username
-    args['title']= 'Мои файлы'
-    args['catalog'] = Catalog.objects.filter(category__is_publish=True, user_id=auth.get_user(request).id).order_by('-date_add')
-    return render(request, '../templates/catalog/myfiles.html', args)
+    if args['username']:
+        args['title']= 'Мои файлы'
+        args['catalog'] = Catalog.objects.filter(category__is_publish=True, user_id=auth.get_user(request).id).order_by('-date_add')
+        return render(request, '../templates/catalog/myfiles.html', args)
+    else:
+        redirect('/')
+
+def private_files(request, user_id):
+    args={}
+    args.update(csrf(request))
+    args['username']= auth.get_user(request).username
+    if args['username']:
+        args['title']= 'Личные файлы'
+        args['catalog'] = Catalog.objects.filter(category__is_publish=True, user_id=auth.get_user(request).id, choices='is_for_me').order_by('-date_add')
+        return render(request, '../templates/catalog/myfiles.html', args)
+    else:
+        return redirect('/')
 
 def addfile(request):
     args={}
     args.update(csrf(request))
-    args['username'] = auth.get_user(request).username
-    args['title'] = 'Добаввть файл'
-    args['form_c'] = CatalogForms()#AddCatalogForm()
-    args['form_f'] = FilesCatalogForms()
-    return render(request, '../templates/catalog/addfiles.html', args)
+    if auth.get_user(request).username:
+        args['username'] = auth.get_user(request).username
+        args['title'] = 'Добавить файл'
+        args['form_c'] = CatalogForms()
+        args['form_f'] = FilesCatalogForms()
+        return render(request, '../templates/catalog/addfiles.html', args)
+    else:
+        return redirect('/')
 
 def get_addfile(request):
     args = {}
@@ -216,17 +232,22 @@ def get_addfile(request):
             )
             gn.save()
 
-            if form_c.instance.is_slug == True:
+            if form_c.instance.choices == 'is_slug':
                 mess = 'Вы загрузили файлы. При этом выбрав пукт доступа к файлу "Доступ по ссылке". ' + \
                        'Перейдите по ссылке: ' + 'http://' + url_site + '/slug-' + form_c.instance.slug
                 from_email = auth.get_user(request).email
                 send_mail('Загрузка файлов', mess, settings.EMAIL_HOST_USER, [from_email],
                           fail_silently=False)
 
-
-            print(form_c.instance.is_for_me)
             messages.success(request, "Файл добавлен.",
                              extra_tags="alert-success")
+
+            if form_c.instance.choices == 'is_for_me':
+                return redirect('/user-%s/private-files'% auth.get_user(request).id)
+
+            elif form_c.instance.choices == 'is_slug' or form_c.instance.choices =='is_open':
+                return redirect('/user-%s/my-files' % auth.get_user(request).id)
+
             return redirect('/')
         else:
             messages.error(request, "Файл не добавлен.",
@@ -241,8 +262,8 @@ def view_details_slug(request, slug):
         a=[]
         args['username'] = auth.get_user(request).username
         args['title']=Catalog.objects.get(slug=slug).title
-        args['catalog']= Catalog.objects.get(slug=slug, is_slug=True)
-        args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, is_slug=True))
+        args['catalog']= Catalog.objects.get(slug=slug, choices='is_slug')
+        args['files'] = FilesCatalog.objects.filter(catalog=Catalog.objects.get(slug=slug, choices='is_slug'))
         for i in args['files']:
             a.append({'file': {'id': i.id, 'name': str(i.files_s).split('/')[3]}})
         args['files_m'] = a
@@ -287,7 +308,7 @@ def search(request):
         query_string = (args['query_string']).upper()
         entry_query = get_query(query_string, [('title').upper(), ('description').upper(), ])
 
-    args['found_entries'] = Catalog.objects.filter(entry_query, is_open=True).order_by('-date_add')
+    args['found_entries'] = Catalog.objects.filter(entry_query, choices='is_open').order_by('-date_add')
 
     return render(request, '../templates/catalog/search_result.html', args)
 

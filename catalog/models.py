@@ -29,7 +29,9 @@ class Category(models.Model):
 
 def upload_cover(instance, filename):
     return u'%s/%s/%s/cover/%s' % (datetime.datetime.now().year, instance.user_id, instance.category.slug, filename)
-
+CHOICES = [('is_open', 'Опубликован'),
+           ('is_slug', 'Доступ по ссылке'),
+           ('is_for_me', 'Только для меня')]
 class Catalog(models.Model):
     cover = ImageField(verbose_name='Постер', upload_to=upload_cover)
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
@@ -38,9 +40,10 @@ class Catalog(models.Model):
     user = models.ForeignKey(User, verbose_name='Автор')
     description = models.TextField(verbose_name='Описание', max_length=300)
     slug = models.SlugField(verbose_name='Алиас', default=randomStr, unique=True)
-    is_open = models.BooleanField(verbose_name='Для всех', help_text='Дать доступ к файлу для всех пользователей')
-    is_slug = models.BooleanField(verbose_name='По ссылке', help_text='Файл будет доступен только по ссылке')
-    is_for_me = models.BooleanField(verbose_name='Только для меня', help_text='Файл будет доступен только Вам')
+    # is_open = models.BooleanField(verbose_name='Для всех', help_text='Дать доступ к файлу для всех пользователей')
+    # is_slug = models.BooleanField(verbose_name='По ссылке', help_text='Файл будет доступен только по ссылке')
+    # is_for_me = models.BooleanField(verbose_name='Только для меня', help_text='Файл будет доступен только Вам')
+    choices = models.CharField(choices=CHOICES, max_length=11, verbose_name='Публикация' )
 
     class Meta:
         db_table = 'catalog'
