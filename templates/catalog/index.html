@@ -29,6 +29,7 @@
                             <form action="{% url 'addfile' %}" method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 {{ expres_form.as_p }}
+                                {{ files_expres.as_p }}
                                 <input type="submit" class="btn bg-primary" value="Загрузить">
                             </form>
                         </div>

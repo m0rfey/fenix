@@ -17,15 +17,32 @@ from .models import Category, Catalog, FilesCatalog, FilesExpres, ExpresFiles
 from django.contrib.auth.models import UserManager
 import re
 from django.db.models import Q
+from django import forms
 
 def index(request):
     args={}
     args['title'] = 'Home'
     args['catalog'] = Catalog.objects.filter(choices='is_open', category__is_publish=True).order_by('-date_add')
-    args['expres_form'] = TestForm()
+    args['expres_form'] = ExpresFilesForms()
+    args['files_expres'] = FilesExpresForms()
     args['form_search_key'] = SearchKey()
     args['username'] = auth.get_user(request).username
     return render(request, '../templates/catalog/index.html', args)
+
+def valid_file(self):
+    file = self
+    try:
+        if file:
+            file_type =file.content_type.split('/')[0]
+            if len(str(file).split('.'))==1:
+                raise forms.ValidationError('1: File type is not supported')
+
+            if file_type not in settings.UPLOAD_FILE_TYPE:
+                raise forms.ValidationError('2: File type is not supported ')
+    except:
+        pass
+
+    return file
 
 def expres_save(request):
     args={}
@@ -33,49 +50,36 @@ def expres_save(request):
     url_site = request.META['HTTP_HOST']
     args.update(csrf(request))
     args['username'] = auth.get_user(request).username
-    args['expres_form'] = TestForm()
-    f_type = ['jpg', 'jpeg', 'JPG', 'JPEG', 'PNG', 'png', 'mkv', 'avi',
-              'flv', 'pdf', 'mp4', 'mp3', 'flac', 'rar', 'zip',
-              'djvu', 'doc', 'docx', 'txt', 'fb2', 'xls', 'xlsx',
-              'wav', 'wma', 'mpg', 'mpeg', 'wmv', 'iso', 'mdf', 'mds']
-    if request.POST:
-        ema =request.POST.get('email','')
-        desc= request.POST.get('description', '')
-        f = request.FILES.get('files_s', '')
-        form = TestForm(request.POST, request.FILES)
-        random_slug = UserManager().make_random_password(length=25)
-        if form.is_valid():
-            mes = 0
-            for i in f_type:
-                if i == str(f).split('.')[-1]:
-                    c = ExpresFiles.objects.create(
-                        email = ema,
-                        description = desc,
-                        slug = random_slug
-                    )
-                    f = FilesExpres.objects.create(
-                        expresfile = c,
-                        files_s = f
-                    )
-                    c.save()
-                    f.save()
-                    print('OK expres files seve')
-                    print()
-                    messages.success(request, "Файл добавлен. Ожидайте письмо с ключем доступа для скачивания",
-                                     extra_tags="alert-success")
-                    mess = 'Ваш email:' + ' ' + ema + ' был использован для загрузки файлов.' + \
-                           ' Ключ доступа: ' + c.slug + '\n' + 'Или перейдите по ссылке: ' + 'http://'+ url_site + '/get-' + c.slug
-                    from_email = ema
-                    send_mail('Спасибо что выбрали нас!', mess, settings.EMAIL_HOST_USER, [from_email],
-                              fail_silently=False)
+    args['expres_form'] = ExpresFilesForms()
+    args['files_expres'] = FilesExpresForms()
+    mes=0
+    con = 0
 
-                    return redirect('/')
-                else:
-                    mes += 1
-            if mes > 0:
-                messages.error(request, "Файл не подходит ни под одно расширение! Разрешенные файлы %s" % f_type, extra_tags="alert-danger")
-                return redirect(return_path)
-    return render(request, '../templates/catalog/index.html', args)
+    if request.POST and request.FILES:
+        form_e = ExpresFilesForms(request.POST, request.FILES)
+        form_f = FilesExpresForms(request.FILES)
+        random_slug = UserManager().make_random_password(length=25)
+        if form_e.is_valid():
+            form_e.instance.slug = random_slug
+            form_e.save()
+            for count, x in enumerate(request.FILES.getlist('files_s')):
+                ft = FilesExpres.objects.create(
+                    expresfile=ExpresFiles.objects.get(id=form_e.instance.id),
+                    files_s=valid_file(x)
+                )
+                ft.save()
+            messages.success(request, "Файл добавлен. Ожидайте письмо с ключем доступа для скачивания",extra_tags="alert-success")
+            mess = 'Ваш email:' + ' ' + form_e.instance.email + ' был использован для загрузки файлов.' + \
+                    ' Ключ доступа: ' + form_e.instance.slug + '\n' + 'Или перейдите по ссылке: ' + 'http://'+ url_site + '/get-' + form_e.instance.slug
+            from_email = form_e.instance.email
+            send_mail('Спасибо что выбрали нас!', mess, settings.EMAIL_HOST_USER, [from_email], fail_silently=False)
+            return redirect('/')
+        else:
+            mes += 1
+    if mes > 0:
+        messages.error(request, "Файл не подходит ни под одно расширение! Разрешенные файлы %s" % f_type, extra_tags="alert-danger")
+        return redirect(return_path)
+    #return render(request, '../templates/catalog/index.html', args)
 
 def category(request, category_slug):
     args={}
@@ -216,7 +220,7 @@ def addfile(request):
 def get_addfile(request):
     # for count, x in enumerate(request.FILES.getlist('files_s')):
     #     def proces(f):
-    #         with open('', 'wb+') as destination:
+    #         with open('directory', 'wb+') as destination:
     #             for file in f.chunks():
     #                 destination.write(file)
     #     pass
@@ -235,7 +239,7 @@ def get_addfile(request):
             for count, x in enumerate(request.FILES.getlist('files_s')):
                 gn = FilesCatalog.objects.create(
                     catalog = Catalog.objects.get(id=form_c.instance.id),
-                    files_s = x
+                    files_s = valid_file(x)
                 )
                 gn.save()
 

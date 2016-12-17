@@ -150,10 +150,6 @@ EMAIL_USE_TLS = True
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-#THUMBNAIL_BACKEND = 'sorl.thumbnail.base.ThumbnailBackend'
-
-#THUMBNAIL_KVSTORE ='sorl.thumbnail.kvstores.cached_db_kvstore.KVStore'
-
-#THUMBNAIL_KEY_DBCOLUMN = 'key'
-
-#THUMBNAIL_ENGINE = 'sorl.thumbnail.engines.pil_engine.Engine'
+UPLOAD_FILE_TYPE = ['audio', 'application/pdf','application/x-rar','application/x-tar', 'application/zip',
+                    'application/gzip', 'application/octet-stream' 'text/plain', 'image/gif',
+                    'image/jpeg', 'image/png']

@@ -74,7 +74,7 @@ class FilesCatalogForms(forms.ModelForm):
         required=False,
         widget= forms.FileInput({'multiple':''}))
     class Meta:
-        model=FilesExpres
+        model=FilesCatalog
         fields=['files_s']
 
 

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 {% load staticfiles %}
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Fenix-{{ title }}</title>
@@ -13,6 +13,10 @@
     <script type="text/javascript" src="{% static "catalog/js/rlaccordion.js" %}"></script>
     <script type="text/javascript" src="{% static "catalog/js/scripts.js" %}"></script>
 
+{#    <link href="http://hayageek.github.io/jQuery-Upload-File/4.0.10/uploadfile.css" rel="stylesheet">#}
+{#    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>#}
+{#    <script src="{% static 'catalog/js/jquery.uploadfile.min.js' %}"></script>#}
+
     {% block head  %}
     
     {% endblock %}
@@ -21,6 +25,17 @@
 </head>
 <body>
 {% block script %}{% endblock %}
+{#<script>#}
+{#    $(document).ready(function()#}
+{#    {#}
+{#        $("#fileuploader").uploadFile({#}
+{#        url:"{% url 'add' %}",#}
+{#        multiple:true,#}
+{#        sequential:true,#}
+{#        sequentialCount:1#}
+{#        });#}
+{#    });#}
+{#</script>#}
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
